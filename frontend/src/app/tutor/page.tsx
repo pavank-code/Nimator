@@ -14,6 +14,13 @@ interface Message {
     timestamp: Date;
 }
 
+interface VisualObject {
+    object_id: string;
+    object_type: string;
+    display_name: string;
+    color: string;
+}
+
 interface VideoData {
     job_id: string;
     status: string;
@@ -21,6 +28,7 @@ interface VideoData {
     video_url?: string;
     prompt?: string;
     voiceover_text?: string; // Text to speak in sync with video
+    visual_objects?: VisualObject[];
 }
 
 export default function TutorPage() {
@@ -88,7 +96,7 @@ export default function TutorPage() {
         setIsLoading(true);
 
         try {
-            // Send to tutor API
+            // Send to orchestrated tutor API (DeepSeek + Qwen pipeline)
             const response = await fetch(`${API_URL}/api/tutor/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -106,26 +114,40 @@ export default function TutorPage() {
             setSessionId(data.session_id);
 
             // Step 1: Add assistant message immediately (text displays first)
+            // Orchestrated endpoint uses 'explanation' instead of 'response'
             const assistantMessage: Message = {
                 role: 'assistant',
-                content: data.response,
+                content: data.explanation,
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, assistantMessage]);
 
-            // Step 2: Handle video generation (starts in parallel)
-            if (data.should_generate_video && data.video_prompt) {
-                // Start video generation - voice will sync when video is ready
-                await triggerVideoGeneration(
-                    data.video_prompt,
-                    data.modify_video,
-                    data.modifications,
-                    data.response // Pass the response text for voiceover sync
-                );
+            // Step 2: Handle video generation (orchestrator triggers it automatically)
+            if (data.video_generating && data.video_job_id) {
+                // Video generation already started by orchestrator
+                setCurrentVideo({
+                    job_id: data.video_job_id,
+                    status: 'processing',
+                    progress: 0,
+                    prompt: 'Synced visual explanation',
+                    voiceover_text: data.explanation,
+                    visual_objects: data.visual_objects || [],
+                    video_url: data.video_url
+                });
+
+                // Poll for video status if not ready yet
+                if (!data.video_url) {
+                    pollVideoStatus(data.video_job_id, data.explanation);
+                } else {
+                    // Video already ready - play with voice sync
+                    if (voiceEnabled) {
+                        playVideoWithVoice(data.video_url, data.explanation);
+                    }
+                }
             } else {
                 // No video - just speak the response normally
                 if (voiceEnabled) {
-                    speakText(data.response);
+                    speakText(data.explanation);
                 }
             }
 
@@ -226,6 +248,39 @@ export default function TutorPage() {
         }
     };
 
+    // Poll for video status from orchestrated endpoint
+    const pollVideoStatus = (jobId: string, voiceoverText: string) => {
+        const pollInterval = setInterval(async () => {
+            try {
+                const statusRes = await fetch(`${API_URL}/api/tutor/video/${jobId}`);
+                const statusData = await statusRes.json();
+
+                const isCompleted = statusData.status === 'completed';
+                const isFailed = statusData.status === 'failed';
+
+                setCurrentVideo(prev => prev ? {
+                    ...prev,
+                    status: statusData.status,
+                    progress: statusData.progress || 0,
+                    video_url: statusData.video_url
+                } : null);
+
+                if (isCompleted || isFailed) {
+                    clearInterval(pollInterval);
+
+                    // When video is ready, trigger sync playback
+                    if (isCompleted && statusData.video_url && voiceEnabled) {
+                        playVideoWithVoice(statusData.video_url, voiceoverText);
+                    }
+                }
+            } catch (e) {
+                console.error('Poll error:', e);
+            }
+        }, 2000);
+
+        // Timeout after 5 minutes
+        setTimeout(() => clearInterval(pollInterval), 300000);
+    };
     const triggerVideoGeneration = async (
         prompt: string,
         isModify: boolean,
