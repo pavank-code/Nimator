@@ -1,0 +1,92 @@
+services:
+  # Redis for job queue
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - OUTPUT_DIR=/app/outputs
+      - TEMP_DIR=/app/temp
+      # LLM Provider - Using OpenRouter (Xiaomi MiMo-V2-Flash, FREE with 262K context)
+      - LLM_PROVIDER=${LLM_PROVIDER:-openrouter}
+      # OpenRouter (Primary - for script + code generation)
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL:-xiaomi/mimo-v2-flash:free}
+      # Gemini (Fallback - rate-limited)
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.0-flash}
+      # Groq (Alternative)
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.3-70b-versatile}
+      # OpenAI (Alternative)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+    volumes:
+      - shared_outputs:/app/outputs
+      - shared_temp:/app/temp
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Renderer Worker - Optimized for long-form educational content
+  renderer:
+    build:
+      context: ./renderer
+      dockerfile: Dockerfile
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - OUTPUT_DIR=/app/outputs
+      - TEMP_DIR=/app/temp
+      - RENDER_TIMEOUT=900
+      - VIDEO_FPS=60
+      - MAX_SCENES=200
+      - ASSEMBLY_TIMEOUT=3600
+      # Deepgram TTS for high-quality AI voices
+      - DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY:-}
+    volumes:
+      - shared_outputs:/app/outputs
+      - shared_temp:/app/temp
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+
+volumes:
+  redis_data:
+  shared_outputs:
+  shared_temp:
