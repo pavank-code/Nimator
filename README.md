@@ -174,5 +174,5 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ---
 
 <div align="center">
-  <sub>Built with ❤️ by the Nimator Team</sub>
+  <sub>Built with ❤️ by the Team Penguin </sub>
 </div>
