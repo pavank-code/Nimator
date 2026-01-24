@@ -30,6 +30,7 @@ services:
       - NVIDIA_API_KEY=${NVIDIA_API_KEY:-}
       - NVIDIA_MODEL=${NVIDIA_MODEL:-deepseek-ai/deepseek-r1}
       - NVIDIA_CODER_MODEL=${NVIDIA_CODER_MODEL:-qwen/qwen2.5-coder-32b-instruct}
+      - NVIDIA_CODER_API_KEY=${NVIDIA_CODER_API_KEY:-}
       # OpenRouter (Backup)
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - OPENROUTER_MODEL=${OPENROUTER_MODEL:-meta-llama/llama-3.1-70b-instruct:free}
