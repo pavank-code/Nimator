@@ -14,10 +14,16 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://redis:6379/0"
     
     # LLM Provider Selection (auto-detects based on available keys)
-    # Priority: gemini > groq > openrouter > openai > ollama > fallback
-    LLM_PROVIDER: str = "auto"  # auto, gemini, groq, openrouter, openai, ollama
+    # Priority: nvidia > gemini > groq > openrouter > openai > ollama > fallback
+    LLM_PROVIDER: str = "auto"  # auto, nvidia, gemini, groq, openrouter, openai, ollama
     
-    # Google Gemini (Primary for Two-Stage Pipeline) - https://aistudio.google.com/
+    # NVIDIA NIM (Primary - DeepSeek R1 for reasoning + Qwen Coder for code)
+    # https://build.nvidia.com/
+    NVIDIA_API_KEY: Optional[str] = None
+    NVIDIA_MODEL: str = "deepseek-ai/deepseek-r1"
+    NVIDIA_CODER_MODEL: str = "qwen/qwen2.5-coder-32b-instruct"
+    
+    # Google Gemini (Backup) - https://aistudio.google.com/
     GEMINI_API_KEY: Optional[str] = None
     GEMINI_MODEL: str = "gemini-2.0-flash"
     
@@ -27,7 +33,8 @@ class Settings(BaseSettings):
     
     # OpenRouter (many models) - https://openrouter.ai/
     OPENROUTER_API_KEY: Optional[str] = None
-    OPENROUTER_MODEL: str = "xiaomi/mimo-v2-flash:free"
+    OPENROUTER_MODEL: str = "meta-llama/llama-3.1-70b-instruct:free"
+    OPENROUTER_CODER_MODEL: str = "mistralai/mixtral-8x7b-instruct:free"
     
     # OpenAI (optional) - https://platform.openai.com/
     OPENAI_API_KEY: Optional[str] = None
