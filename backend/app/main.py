@@ -3,10 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import os
+import asyncio
 
 from app.api.routes import router as api_router
 from app.api.tutor_orchestrated import router as tutor_orchestrated_router
 from app.config import settings
+from app.services.cache_loader import load_existing_videos_to_cache, preload_demo_videos
 
 
 @asynccontextmanager
@@ -21,6 +23,15 @@ async def lifespan(app: FastAPI):
     print("✅ Visual Explainer Generator API started")
     print(f"   Output directory: {settings.OUTPUT_DIR}")
     print(f"   LLM Provider: {settings.LLM_PROVIDER}")
+    
+    # Load existing videos into cache on startup
+    try:
+        print("\n🔄 Initializing video cache...")
+        await load_existing_videos_to_cache()
+        await preload_demo_videos()
+    except Exception as e:
+        print(f"⚠️  Cache initialization warning: {e}")
+    
     yield
     # Shutdown
     print("👋 Shutting down API")
