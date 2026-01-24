@@ -142,9 +142,12 @@ class SyncOrchestrator:
                 # Extract specific parameters based on intent type
                 params = self._extract_parameters(dialogue, intent_type, captured)
                 
+                # Enhanced description for better video generation
+                enhanced_desc = f"High quality, educational visualization of: {dialogue}. Style: clear white background, smooth motion, legible labels, step-by-step animation."
+                
                 intent = VisualIntent(
                     intent_type=intent_type,
-                    description=dialogue,
+                    description=enhanced_desc,
                     parameters=params,
                     dialogue_trigger=match.group(0)
                 )

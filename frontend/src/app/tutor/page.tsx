@@ -57,7 +57,7 @@ I can help you with:
 - Creating **visual animations** to illustrate ideas
 - Step-by-step problem solving
 
-$$\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}$$
+$$ \\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2} $$
 
 **Try asking:** "Explain gradient descent with a visual"`,
             timestamp: new Date()
