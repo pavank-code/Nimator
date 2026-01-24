@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import katex from 'katex';
-import 'katex/dist/katex.min.css';
 
 interface Message {
     id: string;
@@ -16,11 +14,22 @@ interface ChatMessageProps {
     message: Message;
 }
 
+// Render LaTeX using KaTeX (loaded via CDN in layout)
+declare global {
+    interface Window {
+        katex?: any;
+    }
+}
+
 function renderLatex(text: string): string {
+    if (typeof window === 'undefined' || !window.katex) {
+        return text;
+    }
+
     // Render display math $$...$$
     text = text.replace(/\$\$([^$]+)\$\$/g, (_, latex) => {
         try {
-            return `<div class="katex-display my-4">${katex.renderToString(latex, { displayMode: true, throwOnError: false })}</div>`;
+            return `<div class="katex-display my-4">${window.katex.renderToString(latex, { displayMode: true, throwOnError: false })}</div>`;
         } catch {
             return `<code>${latex}</code>`;
         }
@@ -29,7 +38,7 @@ function renderLatex(text: string): string {
     // Render inline math $...$
     text = text.replace(/\$([^$\n]+)\$/g, (_, latex) => {
         try {
-            return katex.renderToString(latex, { displayMode: false, throwOnError: false });
+            return window.katex.renderToString(latex, { displayMode: false, throwOnError: false });
         } catch {
             return `<code>${latex}</code>`;
         }
