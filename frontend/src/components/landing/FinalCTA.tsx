@@ -36,24 +36,36 @@ export default function FinalCTA() {
                     See your first animation in under a minute.
                 </p>
 
-                <div className="relative inline-block group">
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <div className="relative inline-block group">
+                        <Link
+                            href="/app"
+                            className="relative z-10 inline-flex items-center gap-2 px-10 py-4 bg-white text-slate-900 rounded-full font-medium text-lg hover:bg-gray-100 transition-all hover:scale-105 active:scale-95"
+                        >
+                            Generate Video
+                            <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                            </svg>
+                        </Link>
+                        <BorderBeam
+                            duration={8}
+                            size={150}
+                            colorFrom="#FF5A5A"
+                            colorTo="#F24C4C"
+                            className="rounded-full pointer-events-none"
+                            borderWidth={3}
+                        />
+                    </div>
                     <Link
-                        href="/app"
-                        className="relative z-10 inline-flex items-center gap-2 px-10 py-4 bg-white text-slate-900 rounded-full font-medium text-lg hover:bg-gray-100 transition-all hover:scale-105 active:scale-95"
+                        href="/tutor"
+                        className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full font-medium text-lg hover:from-purple-500 hover:to-blue-500 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/30"
                     >
-                        Try it now
+                        <span className="text-xl">🎓</span>
+                        AI Tutor
                         <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                         </svg>
                     </Link>
-                    <BorderBeam
-                        duration={8}
-                        size={150}
-                        colorFrom="#FF5A5A"
-                        colorTo="#F24C4C"
-                        className="rounded-full pointer-events-none" // Ensure beam matches button shape
-                        borderWidth={3}
-                    />
                 </div>
             </div>
         </section>

@@ -2,6 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 
 const FOOTER_LINKS = [
+    { label: 'AI Tutor', href: '/tutor' },
+    { label: 'Generate Video', href: '/app' },
     { label: 'About', href: '#philosophy' },
     { label: 'Docs', href: '#' },
     { label: 'GitHub', href: 'https://github.com' },

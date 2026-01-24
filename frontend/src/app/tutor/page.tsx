@@ -2,11 +2,22 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import ChatMessage from '../../components/tutor/ChatMessage';
 import VideoPanel from '../../components/tutor/VideoPanel';
 import VoiceOrb from '../../components/tutor/VoiceOrb';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+// Example prompts for users
+const EXAMPLE_PROMPTS = [
+    { icon: '📐', text: 'Explain the Pythagorean theorem visually' },
+    { icon: '📉', text: 'Show me how gradient descent works' },
+    { icon: '🔢', text: 'Visualize matrix multiplication' },
+    { icon: '🌀', text: 'Explain derivatives with an animation' },
+    { icon: '🔍', text: 'Show binary search algorithm' },
+    { icon: '📊', text: 'Explain eigenvectors visually' },
+];
 
 interface Message {
     id: string;
@@ -25,6 +36,13 @@ interface VideoData {
     voiceover_text?: string;
 }
 
+interface VisualObject {
+    object_id: string;
+    object_type: string;
+    display_name: string;
+    color: string;
+}
+
 export default function TutorPage() {
     const router = useRouter();
     const [messages, setMessages] = useState<Message[]>([]);
@@ -35,6 +53,8 @@ export default function TutorPage() {
     const [isListening, setIsListening] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [showSidebar, setShowSidebar] = useState(true);
+    const [visualObjects, setVisualObjects] = useState<VisualObject[]>([]);
+    const [showExamples, setShowExamples] = useState(true);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -57,10 +77,17 @@ I can help you with:
 
 $$\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}$$
 
-**Try asking:** "Explain gradient descent with a visual"`,
+**Try asking:** "Explain gradient descent with a visual" or click one of the example prompts below!`,
             timestamp: new Date()
         }]);
     }, []);
+
+    // Hide examples after first message
+    useEffect(() => {
+        if (messages.length > 1) {
+            setShowExamples(false);
+        }
+    }, [messages]);
 
     // Auto-scroll
     useEffect(() => {
@@ -132,6 +159,11 @@ $$\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}$$
                     ? { ...m, content: data.response, isStreaming: false }
                     : m
             ));
+
+            // Update visual objects if available
+            if (data.visual_objects) {
+                setVisualObjects(data.visual_objects);
+            }
 
             // Handle video generation
             if (data.should_generate_video && data.video_prompt) {
@@ -240,20 +272,63 @@ $$\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}$$
             {/* Main Chat Area */}
             <div className="flex-1 flex flex-col">
                 {/* Header */}
-                <header className="flex items-center justify-between h-14 px-4 border-b border-white/10">
+                <header className="flex items-center justify-between h-14 px-4 border-b border-white/10 bg-[#171717]">
                     <div className="flex items-center gap-3">
-                        <button onClick={() => router.push('/')} className="p-2 hover:bg-white/10 rounded-lg">
+                        <button onClick={() => router.push('/')} className="p-2 hover:bg-white/10 rounded-lg transition">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                             </svg>
                         </button>
-                        <h1 className="text-lg font-semibold">AI Tutor</h1>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xl">🎓</span>
+                            <h1 className="text-lg font-semibold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">AI Tutor</h1>
+                        </div>
+                        {sessionId && (
+                            <span className="text-xs text-gray-500 bg-white/5 px-2 py-1 rounded">
+                                Session active
+                            </span>
+                        )}
                     </div>
 
                     <div className="flex items-center gap-2">
+                        {/* New Chat Button */}
+                        <button
+                            onClick={() => {
+                                setMessages([{
+                                    id: '1',
+                                    role: 'assistant',
+                                    content: `# Welcome back! 🎓\n\nI'm ready to help you learn. What would you like to explore today?`,
+                                    timestamp: new Date()
+                                }]);
+                                setSessionId(null);
+                                setCurrentVideo(null);
+                                setVisualObjects([]);
+                                setShowExamples(true);
+                            }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-sm hover:bg-white/10 rounded-lg transition"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            New Chat
+                        </button>
+
+                        {/* Video App Link */}
+                        <Link
+                            href="/app"
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-sm hover:bg-white/10 rounded-lg transition"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            Video Generator
+                        </Link>
+
+                        {/* Toggle Sidebar */}
                         <button
                             onClick={() => setShowSidebar(!showSidebar)}
                             className={`p-2 rounded-lg transition ${showSidebar ? 'bg-white/10' : 'hover:bg-white/10'}`}
+                            title={showSidebar ? 'Hide video panel' : 'Show video panel'}
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
@@ -268,6 +343,44 @@ $$\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}$$
                         {messages.map(message => (
                             <ChatMessage key={message.id} message={message} />
                         ))}
+                        
+                        {/* Example Prompts - shown only at start */}
+                        {showExamples && messages.length <= 1 && (
+                            <div className="mt-6 mb-4">
+                                <p className="text-sm text-gray-400 mb-3">Try one of these:</p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    {EXAMPLE_PROMPTS.map((prompt, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => sendMessage(prompt.text)}
+                                            className="flex items-center gap-2 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-left text-sm transition group"
+                                        >
+                                            <span className="text-lg">{prompt.icon}</span>
+                                            <span className="text-gray-300 group-hover:text-white">{prompt.text}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Visual Objects Display */}
+                        {visualObjects.length > 0 && (
+                            <div className="mt-4 p-3 bg-white/5 rounded-xl border border-white/10">
+                                <p className="text-xs text-gray-400 mb-2">Currently on screen:</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {visualObjects.map((obj) => (
+                                        <span
+                                            key={obj.object_id}
+                                            className="inline-flex items-center gap-1 px-2 py-1 bg-white/10 rounded text-xs"
+                                            style={{ borderLeft: `3px solid ${obj.color}` }}
+                                        >
+                                            {obj.display_name}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         <div ref={messagesEndRef} />
                     </div>
                 </div>
@@ -280,15 +393,15 @@ $$\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}$$
                 />
 
                 {/* Input Area - ChatGPT Style */}
-                <div className="p-4 border-t border-white/10">
+                <div className="p-4 border-t border-white/10 bg-[#171717]">
                     <div className="max-w-3xl mx-auto">
-                        <div className="relative flex items-end bg-[#2f2f2f] rounded-2xl border border-white/10">
+                        <div className="relative flex items-end bg-[#2f2f2f] rounded-2xl border border-white/10 shadow-lg">
                             <textarea
                                 ref={inputRef}
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyDown={handleKeyDown}
-                                placeholder="Message AI Tutor..."
+                                placeholder="Ask about math, physics, algorithms, or ML..."
                                 rows={1}
                                 className="flex-1 bg-transparent text-white placeholder-gray-500 resize-none outline-none p-4 pr-24 max-h-48 min-h-[56px]"
                                 style={{ height: 'auto' }}
@@ -299,7 +412,8 @@ $$\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}$$
                                 {/* Voice Button */}
                                 <button
                                     onClick={toggleListening}
-                                    className={`p-2 rounded-lg transition ${isListening ? 'bg-red-500 text-white' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
+                                    className={`p-2 rounded-lg transition ${isListening ? 'bg-red-500 text-white animate-pulse' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
+                                    title={isListening ? 'Stop listening' : 'Voice input'}
                                 >
                                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
@@ -311,18 +425,31 @@ $$\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}$$
                                 <button
                                     onClick={() => sendMessage(inputValue)}
                                     disabled={!inputValue.trim() || isLoading}
-                                    className={`p-2 rounded-lg transition ${inputValue.trim() && !isLoading ? 'bg-white text-black hover:bg-gray-200' : 'text-gray-600 cursor-not-allowed'}`}
+                                    className={`p-2 rounded-lg transition ${inputValue.trim() && !isLoading ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-400 hover:to-blue-400' : 'text-gray-600 cursor-not-allowed'}`}
+                                    title="Send message"
                                 >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                                    </svg>
+                                    {isLoading ? (
+                                        <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        </svg>
+                                    ) : (
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                        </svg>
+                                    )}
                                 </button>
                             </div>
                         </div>
 
-                        <p className="text-xs text-gray-500 text-center mt-2">
-                            AI Tutor can make mistakes. Verify important information.
-                        </p>
+                        <div className="flex items-center justify-between mt-2">
+                            <p className="text-xs text-gray-500">
+                                Press Enter to send • Shift+Enter for new line
+                            </p>
+                            <p className="text-xs text-gray-500">
+                                AI Tutor can make mistakes. Verify important information.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

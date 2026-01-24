@@ -93,6 +93,13 @@ export default function HeroSection() {
                         >
                             Generate an Animation
                         </Link>
+                        <Link
+                            href="/tutor"
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full font-medium hover:from-purple-500 hover:to-blue-500 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/20"
+                        >
+                            <span className="text-lg">🎓</span>
+                            Try AI Tutor
+                        </Link>
                         <button
                             onClick={scrollToHowItWorks}
                             className="btn-secondary"

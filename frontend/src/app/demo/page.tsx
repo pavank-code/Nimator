@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 export default function DemoPage() {
     const [isPlaying, setIsPlaying] = useState(false);
@@ -11,17 +12,33 @@ export default function DemoPage() {
             <div className="sticky top-0 z-10 bg-black/50 backdrop-blur-xl border-b border-white/10">
                 <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
-                            <span className="text-2xl">🎓</span>
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                                Visual Explainer Generator
-                            </h1>
-                            <p className="text-sm text-gray-400">AI-Powered Educational Animations</p>
-                        </div>
+                        <Link href="/" className="flex items-center gap-3">
+                            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
+                                <span className="text-2xl">🎓</span>
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                                    Visual Explainer Generator
+                                </h1>
+                                <p className="text-sm text-gray-400">AI-Powered Educational Animations</p>
+                            </div>
+                        </Link>
                     </div>
                     <div className="flex items-center gap-3">
+                        <Link
+                            href="/tutor"
+                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 rounded-lg text-sm font-medium transition-all"
+                        >
+                            <span>🎓</span>
+                            Try AI Tutor
+                        </Link>
+                        <Link
+                            href="/app"
+                            className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition-all"
+                        >
+                            <span>🎬</span>
+                            Generate Video
+                        </Link>
                         <span className="px-3 py-1.5 bg-green-500/20 border border-green-500/30 rounded-full text-green-400 text-sm font-medium">
                             ● Live Demo
                         </span>
@@ -314,9 +331,32 @@ export default function DemoPage() {
             <div className="mt-12 bg-black/50 border-t border-white/10 py-8">
                 <div className="max-w-7xl mx-auto px-6 text-center">
                     <p className="text-lg font-semibold mb-2">Visual Explainer Generator</p>
-                    <p className="text-gray-400 text-sm">
+                    <p className="text-gray-400 text-sm mb-6">
                         Multi-Agent Architecture: DeepSeek (Reasoning) → Qwen (Code) → Manim (Render) → Deepgram (Voice)
                     </p>
+                    <div className="flex justify-center gap-6">
+                        <Link
+                            href="/tutor"
+                            className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors"
+                        >
+                            <span>🎓</span>
+                            AI Tutor
+                        </Link>
+                        <Link
+                            href="/app"
+                            className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                            <span>🎬</span>
+                            Video Generator
+                        </Link>
+                        <Link
+                            href="/"
+                            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                        >
+                            <span>🏠</span>
+                            Home
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>
