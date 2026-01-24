@@ -36,6 +36,8 @@ export default function TutorPage() {
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [showSidebar, setShowSidebar] = useState(false);
 
+    const [videoHistory, setVideoHistory] = useState<VideoData[]>([]);
+
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const recognitionRef = useRef<any>(null);
@@ -176,32 +178,57 @@ $$\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}$$
     };
 
     const triggerVideoGeneration = async (prompt: string, voiceoverText: string) => {
-        setCurrentVideo({ job_id: '', status: 'starting', progress: 0, prompt, voiceover_text: voiceoverText });
+        // Create initial video object with a temp ID to track it before we get the real job_id
+        const tempId = generateId();
+        const newVideo: VideoData = {
+            job_id: tempId,
+            status: 'starting',
+            progress: 0,
+            prompt,
+            voiceover_text: voiceoverText
+        };
+
+        // Add to history and set as current
+        setVideoHistory(prev => [newVideo, ...prev]);
+        setCurrentVideo(newVideo);
         setShowSidebar(true);
 
         try {
             const response = await fetch(`${API_URL}/api/generate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt, duration_seconds: 60, sample_mode: true })
+                body: JSON.stringify({ prompt, duration_seconds: 90, sample_mode: true })
             });
 
             if (!response.ok) throw new Error('Failed');
 
             const { job_id } = await response.json();
-            setCurrentVideo(prev => prev ? { ...prev, job_id, status: 'processing' } : null);
+
+            // Helper to update video properties
+            const updateWithJobId = (v: VideoData) => ({ ...v, job_id, status: 'processing' });
+
+            // Update the temp video with the real job_id
+            setVideoHistory(prev => prev.map(v => v.job_id === tempId ? updateWithJobId(v) : v));
+            setCurrentVideo(prev => (prev?.job_id === tempId) ? updateWithJobId(prev) : prev);
 
             const poll = setInterval(async () => {
                 try {
                     const res = await fetch(`${API_URL}/api/status/${job_id}`);
                     const data = await res.json();
 
-                    setCurrentVideo(prev => prev ? {
-                        ...prev,
+                    // Update logic
+                    const updateStatus = (v: VideoData) => ({
+                        ...v,
                         status: data.status,
                         progress: data.progress || 0,
                         video_url: data.video_url
-                    } : null);
+                    });
+
+                    // Update in history using the REAL job_id
+                    setVideoHistory(prev => prev.map(v => v.job_id === job_id ? updateStatus(v) : v));
+
+                    // Update current if it matches
+                    setCurrentVideo(prev => (prev && prev.job_id === job_id) ? updateStatus(prev) : prev);
 
                     if (data.status === 'completed' || data.status === 'failed') {
                         clearInterval(poll);
@@ -212,9 +239,12 @@ $$\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}$$
                 } catch { }
             }, 2000);
 
+            // Timeout after 10 minutes
             setTimeout(() => clearInterval(poll), 600000);
         } catch {
-            setCurrentVideo(null);
+            const markFailed = (v: VideoData) => ({ ...v, status: 'failed' });
+            setVideoHistory(prev => prev.map(v => v.job_id === tempId ? markFailed(v) : v));
+            setCurrentVideo(prev => (prev?.job_id === tempId) ? markFailed(prev) : prev);
         }
     };
 
@@ -331,6 +361,8 @@ $$\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}$$
             {showSidebar && (
                 <VideoPanel
                     video={currentVideo}
+                    history={videoHistory}
+                    onSelectVideo={setCurrentVideo}
                     isSpeaking={isSpeaking}
                     onClose={() => setShowSidebar(false)}
                     onClear={() => setCurrentVideo(null)}

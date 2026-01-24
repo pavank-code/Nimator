@@ -255,9 +255,10 @@ class SyncOrchestrator:
                 if not has_type:
                     blocked.append(match.group(0))
         
-        # If there are blocked references, add a warning
+        # If there are blocked references, log a warning but DO NOT inject it into user text
         if blocked:
-            filtered = f"[SYNC WARNING: Some visuals not yet rendered] {narration}"
+            print(f"⚠️ [SYNC WARNING] Blocked references: {blocked}")
+            # filtered = f"[SYNC WARNING: Some visuals not yet rendered] {narration}" 
         
         return filtered, blocked
     
