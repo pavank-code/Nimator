@@ -1,10 +1,21 @@
-# Visual Explainer Generator 🎬
+<div align="center">
+  <img src="./readme-images/full-logo.png" alt="Visual Explainer Logo" width="120" height="120">
+  
+  # Nimator
+  
+  **Video Generation using Manim & Text-to-Speech**
+  
+  ![Next.js 14](https://img.shields.io/badge/Next.js-14-black.svg)
+  [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://python.org)
+  [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://docker.com)
+  [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+  
+  [Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Architecture](#-architecture) • [Contributing](#-contributing)
 
-Transform complex concepts into clear, animated visual explanations.
+</div>
 
-![MIT License](https://img.shields.io/badge/License-MIT-green.svg)
-![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)
-![Next.js 14](https://img.shields.io/badge/Next.js-14-black.svg)
+---
+
 
 ## 🎯 Overview
 
@@ -17,6 +28,17 @@ Visual Explainer Generator converts natural language questions into short (30-90
 - **No Account Required**: Start generating immediately
 - **Voiceover Narration**: Automated TTS for each scene
 - **Download MP4**: Keep your videos for offline use
+## 📸 Screenshots
+
+<div align="center">
+  <img src="./readme-images/screenshot1.png" alt="Generate Screen" width="45%">
+  <img src="./readme-images/screenshot2.png" alt="Status Screen" width="45%">
+</div>
+
+## Sample Video
+<div align="center">
+  <img src="./readme-images/video.gif" alt="Generate Video" width="75%">
+</div>
 
 ## 🎯 Supported Topics
 
