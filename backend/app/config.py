@@ -14,10 +14,30 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://redis:6379/0"
     
     # LLM Provider Selection (auto-detects based on available keys)
-    # Priority: gemini > groq > openrouter > openai > ollama > fallback
-    LLM_PROVIDER: str = "auto"  # auto, gemini, groq, openrouter, openai, ollama
+    # Priority: nvidia > gemini > groq > openrouter > openai > ollama > fallback
+    LLM_PROVIDER: str = "auto"  # auto, nvidia, gemini, groq, openrouter, openai, ollama
     
-    # Google Gemini (Primary for Two-Stage Pipeline) - https://aistudio.google.com/
+    # ===== NVIDIA NIM Multi-Agent LLM Configuration =====
+    # Future Architecture: Orchestrator assigns specialized jobs to each model
+    # - DeepSeek: Reasoning, visual-first pedagogy, script generation
+    # - Qwen Coder: Manim code generation, validation, debugging
+    
+    NVIDIA_API_KEY: Optional[str] = None  # Shared key (fallback)
+    
+    # DeepSeek V3.2 - Primary reasoning model
+    NVIDIA_DEEPSEEK_MODEL: str = "deepseek-ai/deepseek-v3.2"
+    NVIDIA_DEEPSEEK_API_KEY: Optional[str] = None
+    # Future: NVIDIA_DEEPSEEK_SYSTEM_PROMPT for visual-first pedagogy
+    
+    # Qwen 2.5 Coder 32B - Code generation specialist
+    NVIDIA_QWEN_MODEL: str = "qwen/qwen2.5-coder-32b-instruct"
+    NVIDIA_QWEN_API_KEY: Optional[str] = None
+    # Future: NVIDIA_QWEN_SYSTEM_PROMPT for Manim code generation
+    
+    # Legacy support
+    NVIDIA_MODEL: str = "deepseek-ai/deepseek-v3.2"
+    
+    # Google Gemini - https://aistudio.google.com/
     GEMINI_API_KEY: Optional[str] = None
     GEMINI_MODEL: str = "gemini-2.0-flash"
     

@@ -24,9 +24,19 @@ services:
       - REDIS_PORT=6379
       - OUTPUT_DIR=/app/outputs
       - TEMP_DIR=/app/temp
-      # LLM Provider - Using OpenRouter (Xiaomi MiMo-V2-Flash, FREE with 262K context)
-      - LLM_PROVIDER=${LLM_PROVIDER:-openrouter}
-      # OpenRouter (Primary - for script + code generation)
+      # LLM Provider - Using NVIDIA NIM with DeepSeek V3.2 (Reasoning model)
+      - LLM_PROVIDER=${LLM_PROVIDER:-nvidia}
+      # NVIDIA NIM (Primary - DeepSeek V3.2 for reasoning)
+      # NVIDIA NIM Multi-Agent LLMs
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY:-}
+      - NVIDIA_MODEL=${NVIDIA_MODEL:-deepseek-ai/deepseek-v3.2}
+      # DeepSeek V3.2 - Reasoning
+      - NVIDIA_DEEPSEEK_MODEL=${NVIDIA_DEEPSEEK_MODEL:-deepseek-ai/deepseek-v3.2}
+      - NVIDIA_DEEPSEEK_API_KEY=${NVIDIA_DEEPSEEK_API_KEY:-}
+      # Qwen 2.5 Coder - Code Generation
+      - NVIDIA_QWEN_MODEL=${NVIDIA_QWEN_MODEL:-qwen/qwen2.5-coder-32b-instruct}
+      - NVIDIA_QWEN_API_KEY=${NVIDIA_QWEN_API_KEY:-}
+      # OpenRouter (Fallback)
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - OPENROUTER_MODEL=${OPENROUTER_MODEL:-xiaomi/mimo-v2-flash:free}
       # Gemini (Fallback - rate-limited)

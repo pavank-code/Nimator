@@ -1,6 +1,7 @@
 """
 Script Writer Service - Stage 1 of the Two-Stage Pipeline
-Generates synchronized educational scripts with detailed animation descriptions.
+Generates synchronized educational scripts with VISUAL-FIRST pedagogy.
+The voiceover ALWAYS describes what is currently visible on screen.
 """
 from typing import Dict, Any, Optional, List
 import json
@@ -9,80 +10,114 @@ from app.services.topic_classifier import LLMClient
 
 class ScriptWriter:
     """
-    Stage 1: Generates a complete synchronized script.
+    Stage 1: Generates a complete synchronized script using VISUAL-FIRST pedagogy.
+    
+    CORE PRINCIPLE: The narrator DESCRIBES what is happening on screen in real-time.
+    Never explain ahead of the animation. Always point at the visual first.
+    
     The script includes:
-    - Voiceover text (what to say)
-    - Animation descriptions (what to show, synchronized with voiceover)
+    - Voiceover text (describing what's visible NOW)
+    - Animation descriptions (synchronized with voiceover)
     - Scene breakdown with timing
     - Visual variety specifications
     """
     
-    SCRIPT_GENERATION_PROMPT = """You are a world-class educational content creator like 3Blue1Brown.
-Your task: Write a COMPLETE, SYNCHRONIZED educational video script.
+    SCRIPT_GENERATION_PROMPT = """You are a VISUAL-FIRST AI tutor like 3Blue1Brown.
+Your PRIMARY responsibility is to EXPLAIN WHAT IS HAPPENING ON THE SCREEN, not just explain the topic abstractly.
 
-CRITICAL REQUIREMENTS:
-1. VIDEO LENGTH: Must be 6-8 minutes (360-480 seconds)
-2. SCENE COUNT: 25-35 scenes (each ~10-15 seconds with voiceover)
-3. SYNCHRONIZATION: Animation MUST match what's being explained
-4. VARIETY: Use different visual types - NO repetitive animations
+You must assume a mathematical animation is being generated alongside your explanation.
+Your explanation MUST stay synchronized with the visuals.
 
-VISUAL VARIETY REQUIREMENTS (CRITICAL - NO REPETITION):
-- Use DIFFERENT graph types: parabolas, sine waves, exponentials, logarithms, cubic functions, absolute value, step functions
-- Use DIFFERENT coordinate systems: 2D cartesian, polar, 3D spaces
-- Use DIFFERENT animation styles: drawing curves, transforming shapes, moving dots, growing vectors, morphing equations
-- Use DIFFERENT color schemes for each scene
-- Each scene should feel FRESH and DIFFERENT
+=== STRICT RULES ===
 
-USER TOPIC: "{prompt}"
+1. NEVER explain a concept unless it is currently visible or being animated on screen.
+2. Always DESCRIBE what the viewer is seeing BEFORE explaining why it works.
+3. Speak as if you are POINTING at the screen in real time.
+4. Use phrases like:
+   - "Now on the screen, you can see..."
+   - "As this curve is being drawn..."
+   - "Notice how this graph changes..."
+   - "Watch as the point moves..."
+   - "See how the vectors align..."
+5. Do NOT jump ahead of the animation.
+6. Do NOT explain future steps before they appear visually.
 
-SCRIPT FORMAT - Return valid JSON:
+=== MANDATORY EXPLANATION STRUCTURE ===
+
+For EACH scene, follow this EXACT sequence:
+
+A. VISUAL DESCRIPTION (what is appearing/animating on screen RIGHT NOW)
+B. MATHEMATICAL EXPRESSION (equation shown or implied by the visual)
+C. INTUITION (plain-language WHY explanation, tied to the visual)
+D. TRANSITION (brief hint about what will change next)
+
+=== MATHEMATICAL REQUIREMENTS ===
+
+- Use equations wherever possible
+- Introduce equations ONLY when they match what is being visualized
+- Keep equations simple and readable
+- If approximations are shown, explain what is being approximated and why
+
+=== VOICE & TTS REQUIREMENTS ===
+
+- Speak slowly and clearly
+- Use SHORT, well-paced sentences
+- Do NOT compress explanations
+- Assume this will be converted directly to voice
+- Avoid long paragraphs - break into 2-3 sentence chunks
+- Pause naturally between ideas
+
+=== PEDAGOGY RULES ===
+
+- Explain as if teaching a curious beginner
+- Assume the user wants INTUITION, not memorization
+- Frequently connect the math BACK to the visual
+- Every sentence should reference what's on screen
+
+=== USER TOPIC ===
+"{prompt}"
+
+=== OUTPUT FORMAT ===
+Return valid JSON with this structure:
+
 {{
     "title": "Video Title",
-    "total_duration_seconds": <number 360-480>,
-    "summary": "One paragraph description",
+    "total_duration_seconds": <360-480>,
+    "summary": "One paragraph visual-first description",
     "scenes": [
         {{
             "scene_number": 1,
-            "duration_seconds": <10-15>,
-            "voiceover": "Exactly what the narrator says (60-100 words, natural speech)",
-            "visual_description": "Detailed description of what's shown on screen",
-            "visual_type": "one of: graph_2d, graph_3d, vector_field, transformation, equation_morph, comparison, diagram, particle_motion",
+            "duration_seconds": <12-18>,
+            "voiceover": "VISUAL-FIRST narration: Start with 'On screen, you see...' or 'Watch as...' then describe what's visible, THEN explain the math. 60-100 words, natural speech with pauses.",
+            "visual_description": "Detailed description of what appears on screen",
+            "visual_type": "one of: graph_2d, vector_arrows, dots_paths, text_labels",
             "visual_elements": {{
-                "primary": "main visual element description",
-                "secondary": "supporting elements",
-                "animation_sequence": ["step 1", "step 2", "step 3"],
-                "math_expressions": ["latex expression 1", "latex expression 2"],
-                "colors": {{"primary": "#hex", "secondary": "#hex", "accent": "#hex"}}
+                "primary": "main visual element",
+                "function": "x**2 or sin(x) or exp(-x**2) etc",
+                "animation_sequence": ["step 1: draw axes", "step 2: trace curve", "step 3: highlight point"],
+                "math_expressions": ["f(x) = x^2"],
+                "colors": {{"primary": "#FFD700"}}
             }},
             "sync_points": [
-                {{"time": "0:00", "voiceover_word": "first key word", "visual_action": "what happens visually"}},
-                {{"time": "0:05", "voiceover_word": "second key word", "visual_action": "what happens visually"}}
-            ],
-            "transition_to_next": "How this scene connects to the next"
+                {{"at_word": "curve", "visual_action": "curve finishes drawing"}},
+                {{"at_word": "slope", "visual_action": "tangent line appears"}}
+            ]
         }}
     ]
 }}
 
-CONTENT STRUCTURE (25-35 scenes):
-1. HOOK (2-3 scenes): Grab attention with an intriguing question or surprising visual
-2. FOUNDATION (5-7 scenes): Build intuition with simple, clear visuals
-3. CORE EXPLANATION (10-15 scenes): Deep dive with varied visualizations
-4. ADVANCED INSIGHTS (5-7 scenes): Show connections and deeper patterns
-5. SUMMARY (2-3 scenes): Recap key insights with memorable visuals
+=== SCENE DISTRIBUTION (25-35 scenes) ===
+1. HOOK (2-3 scenes): "Look at this curve..." - immediate visual engagement
+2. FOUNDATION (5-7 scenes): "Notice how..." - build visual intuition
+3. CORE (10-15 scenes): "Watch as..." - deep visual exploration with equations
+4. INSIGHTS (5-7 scenes): "See the pattern..." - connect visuals to deeper meaning
+5. SUMMARY (2-3 scenes): "Remember how we saw..." - visual recap
 
-CRITICAL RULES:
-1. NEVER repeat the same animation type in consecutive scenes
-2. ALWAYS sync voiceover with visual - when you say "gradient", show the gradient
-3. Use SPECIFIC math functions - not just "parabola" every time
-4. Vary camera angles and visual perspectives
-5. Include smooth transitions between scenes
-6. Make each scene visually distinct and memorable
+Generate the complete VISUAL-FIRST script now:"""
 
-Generate the complete script now:"""
-
-    # Compact prompt for 30-second sample videos
-    SAMPLE_SCRIPT_PROMPT = """You are a world-class educational content creator like 3Blue1Brown.
-Create a SHORT, IMPACTFUL 30-second sample video script.
+    # Visual-first prompt for short sample videos
+    SAMPLE_SCRIPT_PROMPT = """You are a VISUAL-FIRST AI tutor.
+Create a SHORT, IMPACTFUL sample video where you DESCRIBE what's on screen as it animates.
 
 REQUIREMENTS:
 1. DURATION: Exactly 30 seconds (3 scenes, ~10 seconds each)
@@ -159,17 +194,17 @@ Generate the script:"""
         if not self.llm.provider:
             return self._generate_fallback_script(prompt, duration_seconds)
         
-        # Calculate scene count based on duration (~12 seconds per scene)
-        target_scenes = max(5, duration_seconds // 12)
+        # Calculate scene count based on duration (~15 seconds per scene for visual-first pacing)
+        target_scenes = max(5, duration_seconds // 15)
         
         try:
-            # Dynamic prompt based on duration
+            # Dynamic prompt based on duration - use visual-first markers
             dynamic_prompt = self.SCRIPT_GENERATION_PROMPT.replace(
-                "VIDEO LENGTH: Must be 6-8 minutes (360-480 seconds)",
-                f"VIDEO LENGTH: Must be approximately {duration_seconds} seconds ({duration_seconds // 60} minutes)"
+                '"total_duration_seconds": <360-480>',
+                f'"total_duration_seconds": {duration_seconds}'
             ).replace(
-                "SCENE COUNT: 25-35 scenes",
-                f"SCENE COUNT: {target_scenes} scenes (each ~10-15 seconds with voiceover)"
+                "=== SCENE DISTRIBUTION (25-35 scenes) ===",
+                f"=== SCENE DISTRIBUTION ({target_scenes} scenes, ~15 seconds each) ==="
             )
             
             content = await self.llm.chat(
