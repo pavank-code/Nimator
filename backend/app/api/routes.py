@@ -11,6 +11,7 @@ from app.services.scene_planner import ScenePlanner
 from app.services.scene_validator import validate_scenes
 from app.services.math_validator import validate_scene as validate_math
 from app.services.job_orchestrator import JobOrchestrator
+from app.services.cache_manager import get_cache_manager
 from app.api.tutor import router as tutor_router
 
 router = APIRouter()
@@ -184,3 +185,71 @@ async def get_video(job_id: str):
         "topic": job.get("topic"),
         "prompt": job.get("prompt")
     }
+
+
+# ============= CACHE ENDPOINTS =============
+
+@router.get("/cache/list")
+async def list_cached_videos():
+    """List all cached videos ready for instant playback."""
+    cache_manager = get_cache_manager()
+    cached_videos = cache_manager.list_cached_videos()
+    stats = cache_manager.get_cache_stats()
+    
+    return {
+        "cached_count": len(cached_videos),
+        "videos": cached_videos,
+        "stats": stats
+    }
+
+
+@router.get("/cache/check/{topic}")
+async def check_cache(topic: str):
+    """Check if a video is cached for a topic."""
+    cache_manager = get_cache_manager()
+    cached = cache_manager.is_cached(topic)
+    
+    if cached:
+        video_data = cache_manager.get_cached_video(topic)
+        return {
+            "topic": topic,
+            "cached": True,
+            "video": video_data
+        }
+    else:
+        return {
+            "topic": topic,
+            "cached": False,
+            "message": "Video not in cache - will generate on demand"
+        }
+
+
+@router.post("/cache/clear")
+async def clear_all_cache():
+    """Clear all cached videos."""
+    cache_manager = get_cache_manager()
+    deleted = cache_manager.clear_cache()
+    
+    return {
+        "status": "cleared",
+        "entries_deleted": deleted
+    }
+
+
+@router.delete("/cache/{topic}")
+async def clear_topic_cache(topic: str):
+    """Clear cache for a specific topic."""
+    cache_manager = get_cache_manager()
+    deleted = cache_manager.clear_cache(topic)
+    
+    if deleted > 0:
+        return {
+            "status": "deleted",
+            "topic": topic,
+            "entries_deleted": deleted
+        }
+    else:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No cache found for topic: {topic}"
+        )
