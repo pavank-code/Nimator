@@ -7,40 +7,20 @@ from app.config import settings
 
 
 class LLMClient:
-    """
-    Multi-provider LLM client supporting Groq, OpenRouter, Gemini, OpenAI, and NVIDIA NIM.
-    
-    NVIDIA NIM Multi-Agent Architecture (Future):
-    - DeepSeek V3.2: Reasoning, visual-first pedagogy, script generation
-    - Qwen 2.5 Coder: Manim code generation, validation, debugging
-    - Orchestrator: Manages state and communication between agents
-    """
+    """Multi-provider LLM client supporting NVIDIA NIM, Groq, OpenRouter, Gemini, and OpenAI."""
     
     PROVIDERS = {
-        # NVIDIA NIM - DeepSeek (default for reasoning)
         "nvidia": {
             "url": "https://integrate.api.nvidia.com/v1/chat/completions",
             "key_setting": "NVIDIA_API_KEY",
             "model_setting": "NVIDIA_MODEL",
-            "format": "openai"
+            "format": "nvidia"
         },
-        # NVIDIA NIM - DeepSeek V3.2 (explicit)
-        "nvidia_deepseek": {
+        "nvidia_coder": {
             "url": "https://integrate.api.nvidia.com/v1/chat/completions",
-            "key_setting": "NVIDIA_DEEPSEEK_API_KEY",
-            "model_setting": "NVIDIA_DEEPSEEK_MODEL",
-            "fallback_key": "NVIDIA_API_KEY",
-            "format": "openai"
-            # Future: system_prompt_setting for visual-first pedagogy
-        },
-        # NVIDIA NIM - Qwen 2.5 Coder 32B (code specialist)
-        "nvidia_qwen": {
-            "url": "https://integrate.api.nvidia.com/v1/chat/completions",
-            "key_setting": "NVIDIA_QWEN_API_KEY",
-            "model_setting": "NVIDIA_QWEN_MODEL",
-            "fallback_key": "NVIDIA_API_KEY",
-            "format": "openai"
-            # Future: system_prompt_setting for Manim code generation
+            "key_setting": "NVIDIA_API_KEY",
+            "model_setting": "NVIDIA_CODER_MODEL",
+            "format": "nvidia"
         },
         "groq": {
             "url": "https://api.groq.com/openai/v1/chat/completions",
@@ -68,27 +48,10 @@ class LLMClient:
         }
     }
     
-    def __init__(self, agent_type: str = "default"):
-        """
-        Initialize LLM client.
-        
-        Args:
-            agent_type: Which agent to use
-                - "default": Auto-detect best provider
-                - "deepseek": Force NVIDIA DeepSeek V3.2 (reasoning)
-                - "qwen": Force NVIDIA Qwen 2.5 Coder (code generation)
-        """
-        self.agent_type = agent_type
+    def __init__(self):
         self.provider, self.api_key, self.model = self._detect_provider()
         # Build fallback providers list
         self.fallback_providers = self._get_fallback_providers()
-    
-    def _get_api_key_with_fallback(self, provider_config: dict) -> Optional[str]:
-        """Get API key with fallback support for NVIDIA multi-agent config."""
-        key = getattr(settings, provider_config["key_setting"], None)
-        if not key and "fallback_key" in provider_config:
-            key = getattr(settings, provider_config["fallback_key"], None)
-        return key
     
     def _get_fallback_providers(self) -> List[Tuple[str, str, str]]:
         """Get list of available fallback providers."""
@@ -107,22 +70,8 @@ class LLMClient:
     
     def _detect_provider(self) -> Tuple[Optional[str], Optional[str], Optional[str]]:
         """Auto-detect which provider to use based on available API keys."""
-        # Check for explicit agent type selection (for future orchestrator)
-        if self.agent_type == "deepseek":
-            config = self.PROVIDERS["nvidia_deepseek"]
-            key = self._get_api_key_with_fallback(config)
-            model = getattr(settings, config["model_setting"], None)
-            if key:
-                print(f"Using NVIDIA DeepSeek agent: {model}")
-                return "nvidia_deepseek", key, model
-        
-        if self.agent_type == "qwen":
-            config = self.PROVIDERS["nvidia_qwen"]
-            key = self._get_api_key_with_fallback(config)
-            model = getattr(settings, config["model_setting"], None)
-            if key:
-                print(f"Using NVIDIA Qwen Coder agent: {model}")
-                return "nvidia_qwen", key, model
+        print(f"[DEBUG] LLM_PROVIDER setting: {settings.LLM_PROVIDER}")
+        print(f"[DEBUG] NVIDIA_API_KEY set: {'yes' if settings.NVIDIA_API_KEY else 'no'}")
         
         if settings.LLM_PROVIDER != "auto":
             # Use explicitly set provider
@@ -130,11 +79,12 @@ class LLMClient:
             if provider in self.PROVIDERS:
                 key = getattr(settings, self.PROVIDERS[provider]["key_setting"], None)
                 model = getattr(settings, self.PROVIDERS[provider]["model_setting"], None)
+                print(f"[DEBUG] Explicit provider {provider}: key={'set' if key else 'missing'}, model={model}")
                 if key:
                     return provider, key, model
         
         # Auto-detect: try each provider in priority order
-        # NVIDIA NIM (DeepSeek) prioritized for reasoning capabilities
+        # NVIDIA is now prioritized for DeepSeek + Qwen
         priority = ["nvidia", "gemini", "groq", "openrouter", "openai"]
         for provider in priority:
             key_attr = self.PROVIDERS[provider]["key_setting"]
@@ -169,15 +119,55 @@ class LLMClient:
         
         return None
     
+    async def chat_code(self, prompt: str, temperature: float = 0.1, max_tokens: int = 4000) -> Optional[str]:
+        """Send a code generation request - uses dedicated coder model if available."""
+        
+        # NVIDIA Qwen Coder is the PRIMARY choice for code generation
+        nvidia_key = getattr(settings, "NVIDIA_API_KEY", None)
+        nvidia_coder_model = getattr(settings, "NVIDIA_CODER_MODEL", None)
+        
+        if nvidia_key and nvidia_coder_model:
+            print(f"Using NVIDIA Qwen Coder for code generation: {nvidia_coder_model}")
+            result = await self._try_provider(
+                "nvidia_coder", nvidia_key, nvidia_coder_model,
+                prompt, temperature, max_tokens
+            )
+            if result:
+                return result
+            print("NVIDIA Qwen Coder failed, trying OpenRouter Coder")
+        
+        # Try OpenRouter Coder as fallback
+        openrouter_key = getattr(settings, "OPENROUTER_API_KEY", None)
+        openrouter_coder_model = getattr(settings, "OPENROUTER_CODER_MODEL", None)
+        
+        if openrouter_key and openrouter_coder_model:
+            print(f"Using OpenRouter Coder for code generation: {openrouter_coder_model}")
+            result = await self._try_provider(
+                "openrouter", openrouter_key, openrouter_coder_model,
+                prompt, temperature, max_tokens
+            )
+            if result:
+                return result
+            print("OpenRouter Coder failed, falling back to primary provider")
+        
+        # Fallback to regular chat
+        return await self.chat(prompt, temperature, max_tokens)
+    
     async def _try_provider(
         self, provider: str, api_key: str, model: str,
         prompt: str, temperature: float, max_tokens: int
     ) -> Optional[str]:
         """Try a specific provider with retry logic."""
         if not provider or not api_key:
+            print(f"[DEBUG] Provider or API key missing: provider={provider}, key={'set' if api_key else 'missing'}")
+            return None
+        
+        if provider not in self.PROVIDERS:
+            print(f"[DEBUG] Unknown provider: {provider}")
             return None
         
         provider_config = self.PROVIDERS[provider]
+        print(f"[DEBUG] Using provider: {provider}, model: {model}, format: {provider_config['format']}")
         
         # Increase timeout for longer requests (script generation)
         timeout = 300.0 if max_tokens > 5000 else 120.0
@@ -196,6 +186,11 @@ class LLMClient:
                         )
                     elif provider_config["format"] == "gemini":
                         return await self._chat_gemini_format(
+                            client, provider_config["url"], api_key, model,
+                            prompt, temperature, max_tokens
+                        )
+                    elif provider_config["format"] == "nvidia":
+                        return await self._chat_nvidia_format(
                             client, provider_config["url"], api_key, model,
                             prompt, temperature, max_tokens
                         )
@@ -266,6 +261,44 @@ class LLMClient:
         response.raise_for_status()
         result = response.json()
         return result["candidates"][0]["content"]["parts"][0]["text"]
+
+    async def _chat_nvidia_format(
+        self, client: httpx.AsyncClient, url: str, api_key: str,
+        model: str, prompt: str, temperature: float, max_tokens: int
+    ) -> Optional[str]:
+        """Handle NVIDIA NIM API (DeepSeek V3.2, Qwen Coder)."""
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        print(f"[NVIDIA] Calling model: {model}")
+        
+        try:
+            response = await client.post(
+                url,
+                headers=headers,
+                json={
+                    "model": model,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "temperature": temperature,
+                    "top_p": 0.95,
+                    "max_tokens": max_tokens
+                }
+            )
+            
+            print(f"[NVIDIA] Response status: {response.status_code}")
+            
+            if response.status_code != 200:
+                print(f"[NVIDIA] Error response: {response.text[:500]}")
+            
+            response.raise_for_status()
+            result = response.json()
+            print(f"[NVIDIA] Success - got response")
+            return result["choices"][0]["message"]["content"]
+        except Exception as e:
+            print(f"[NVIDIA] Exception: {type(e).__name__}: {e}")
+            raise
 
 
 class TopicClassifier:

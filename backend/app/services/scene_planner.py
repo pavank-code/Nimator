@@ -1,7 +1,11 @@
 """
-Scene Planner - Two-Stage Pipeline Orchestrator
+Scene Planner - Two-Stage Pipeline Orchestrator with Visual Synchronization
+
 Stage 1: Script Writer generates synchronized script
 Stage 2: Manim Code Generator converts script to animations
+Stage 3: Sync Narration ensures narration TRAILS visualization
+
+CORE PRINCIPLE: Narration describes what IS visible, never what WILL BE visible.
 """
 from typing import List, Dict, Any, Optional
 import json
@@ -9,13 +13,20 @@ from app.config import settings
 from app.services.script_writer import ScriptWriter
 from app.services.manim_code_generator import ManimCodeGenerator
 from app.services.topic_classifier import LLMClient
+from app.services.sync_narration import generate_sync_narration
 
 
 class ScenePlanner:
     """
-    Orchestrates the two-stage video generation pipeline:
-    1. Script Writing: Creates synchronized voiceover + animation descriptions
+    Orchestrates the two-stage video generation pipeline with visual synchronization.
+    
+    The pipeline ensures:
+    1. Script Writing: Creates voiceover + animation descriptions
     2. Code Generation: Converts script into Manim scene specifications
+    3. Sync Narration: Rewrites narration to follow visual-first principle
+    
+    CRITICAL: All narration is processed to ensure it describes
+    what IS on screen, never what WILL BE on screen.
     """
     
     def __init__(self):
@@ -29,6 +40,7 @@ class ScenePlanner:
         
         Stage 1: Generate synchronized script (voiceover + visual descriptions)
         Stage 2: Convert script to Manim scene specifications
+        Stage 3: Apply sync narration (visual-first principle)
         
         Args:
             prompt: User's topic/question
@@ -40,7 +52,7 @@ class ScenePlanner:
             sample_mode = True
         
         mode_str = f"{duration_seconds}s" if sample_mode else f"{duration_seconds}s full"
-        print(f"🎬 Starting two-stage video generation pipeline ({mode_str})...")
+        print(f"🎬 Starting visual-synchronized pipeline ({mode_str})...")
         print(f"   Topic: {topic}")
         print(f"   Target duration: {duration_seconds} seconds")
         print(f"   Prompt: {prompt[:100]}...")
@@ -63,9 +75,14 @@ class ScenePlanner:
         
         print(f"   ✅ Generated {len(scenes)} Manim scenes")
         
+        # Stage 3: Apply visual-synchronized narration
+        print(f"🔄 Stage 3: Applying visual-first narration sync...")
+        synced_scenes = generate_sync_narration(scenes)
+        print(f"   ✅ Narration synchronized for {len(synced_scenes)} scenes")
+        
         # Analyze variety
         scene_types = {}
-        for s in scenes:
+        for s in synced_scenes:
             st = s.get("scene_type", "unknown")
             scene_types[st] = scene_types.get(st, 0) + 1
         print(f"   Scene type distribution: {scene_types}")
@@ -74,9 +91,10 @@ class ScenePlanner:
         return {
             "topic": script.get("title", topic),
             "summary": script.get("summary", f"Visual explanation of {prompt}"),
-            "total_scenes": len(scenes),
-            "estimated_duration_seconds": script.get("total_duration_seconds", len(scenes) * 12),
-            "scenes": scenes
+            "total_scenes": len(synced_scenes),
+            "estimated_duration_seconds": script.get("total_duration_seconds", len(synced_scenes) * 12),
+            "scenes": synced_scenes,
+            "sync_enabled": True  # Flag to indicate visual-sync is active
         }
 
 

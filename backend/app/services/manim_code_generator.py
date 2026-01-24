@@ -161,7 +161,8 @@ Return ONLY valid JSON:
         )
         
         try:
-            content = await self.llm.chat(prompt, temperature=0.3, max_tokens=1500)
+            # Use chat_code for code generation (uses Qwen Coder if available)
+            content = await self.llm.chat_code(prompt, temperature=0.3, max_tokens=1500)
             
             if not content:
                 return self._generate_fallback_scene(script_scene, colors, script_scene.get("scene_number", 0))

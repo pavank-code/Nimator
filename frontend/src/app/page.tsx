@@ -130,15 +130,16 @@ export default function HomePage() {
       {/* Header */}
       <header className="pt-8 pb-4 px-4">
         <div className="max-w-4xl mx-auto">
-          {/* Top bar with Test Now button */}
-          <div className="flex justify-end mb-4">
+          {/* AI Tutor Button */}
+          <div className="flex justify-end mb-6">
             <button
               onClick={() => router.push('/tutor')}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-medium rounded-full shadow-lg shadow-purple-500/25 transition-all hover:scale-105"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#10a37f] hover:bg-[#0d8c6d] text-white font-medium rounded-full shadow-lg transition-all hover:scale-105"
             >
-              <span>✨</span>
-              Test AI Tutor
-              <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">Premium</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+              Try AI Tutor
             </button>
           </div>
 
