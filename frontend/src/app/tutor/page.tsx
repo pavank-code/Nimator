@@ -34,7 +34,7 @@ export default function TutorPage() {
     const [currentVideo, setCurrentVideo] = useState<VideoData | null>(null);
     const [isListening, setIsListening] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(false);
-    const [showSidebar, setShowSidebar] = useState(true);
+    const [showSidebar, setShowSidebar] = useState(false);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -55,7 +55,7 @@ I can help you with:
 - Creating **visual animations** to illustrate ideas
 - Step-by-step problem solving
 
-$$\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}$$
+$$\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}$$
 
 **Try asking:** "Explain gradient descent with a visual"`,
             timestamp: new Date()

@@ -47,7 +47,7 @@ export default function VideoPanel({ video, isSpeaking, onClose, onClear }: Vide
     };
 
     return (
-        <div className="w-96 bg-[#171717] border-l border-white/10 flex flex-col">
+        <div className="w-1/2 bg-[#171717] border-l border-white/10 flex flex-col transition-transform duration-300 ease-out animate-slide-in-right">
             {/* Header */}
             <div className="flex items-center justify-between h-14 px-4 border-b border-white/10">
                 <div className="flex items-center gap-2">
