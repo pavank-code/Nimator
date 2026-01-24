@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 import os
 
 from app.api.routes import router as api_router
+from app.api.tutor_orchestrated import router as tutor_orchestrated_router
 from app.config import settings
 
 
@@ -41,6 +42,7 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix="/api")
+app.include_router(tutor_orchestrated_router, prefix="/api")
 
 
 @app.get("/")
