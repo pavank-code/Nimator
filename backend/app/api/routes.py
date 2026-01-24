@@ -11,8 +11,12 @@ from app.services.scene_planner import ScenePlanner
 from app.services.scene_validator import validate_scenes
 from app.services.math_validator import validate_scene as validate_math
 from app.services.job_orchestrator import JobOrchestrator
+from app.api.tutor import router as tutor_router
 
 router = APIRouter()
+
+# Include tutor routes
+router.include_router(tutor_router)
 
 # Redis connection
 redis_client = redis.Redis(

@@ -57,6 +57,9 @@ class Settings(BaseSettings):
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "llama3.1"
     
+    # Deepgram TTS - https://deepgram.com/
+    DEEPGRAM_API_KEY: Optional[str] = None
+    
     # Legacy compatibility
     LLM_MODEL: str = "llama-3.3-70b-versatile"
     
