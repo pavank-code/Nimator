@@ -17,27 +17,13 @@ class Settings(BaseSettings):
     # Priority: nvidia > gemini > groq > openrouter > openai > ollama > fallback
     LLM_PROVIDER: str = "auto"  # auto, nvidia, gemini, groq, openrouter, openai, ollama
     
-    # ===== NVIDIA NIM Multi-Agent LLM Configuration =====
-    # Future Architecture: Orchestrator assigns specialized jobs to each model
-    # - DeepSeek: Reasoning, visual-first pedagogy, script generation
-    # - Qwen Coder: Manim code generation, validation, debugging
+    # NVIDIA NIM (Primary - DeepSeek R1 for reasoning + Qwen Coder for code)
+    # https://build.nvidia.com/
+    NVIDIA_API_KEY: Optional[str] = None
+    NVIDIA_MODEL: str = "deepseek-ai/deepseek-r1"
+    NVIDIA_CODER_MODEL: str = "qwen/qwen2.5-coder-32b-instruct"
     
-    NVIDIA_API_KEY: Optional[str] = None  # Shared key (fallback)
-    
-    # DeepSeek V3.2 - Primary reasoning model
-    NVIDIA_DEEPSEEK_MODEL: str = "deepseek-ai/deepseek-v3.2"
-    NVIDIA_DEEPSEEK_API_KEY: Optional[str] = None
-    # Future: NVIDIA_DEEPSEEK_SYSTEM_PROMPT for visual-first pedagogy
-    
-    # Qwen 2.5 Coder 32B - Code generation specialist
-    NVIDIA_QWEN_MODEL: str = "qwen/qwen2.5-coder-32b-instruct"
-    NVIDIA_QWEN_API_KEY: Optional[str] = None
-    # Future: NVIDIA_QWEN_SYSTEM_PROMPT for Manim code generation
-    
-    # Legacy support
-    NVIDIA_MODEL: str = "deepseek-ai/deepseek-v3.2"
-    
-    # Google Gemini - https://aistudio.google.com/
+    # Google Gemini (Backup) - https://aistudio.google.com/
     GEMINI_API_KEY: Optional[str] = None
     GEMINI_MODEL: str = "gemini-2.0-flash"
     
@@ -47,7 +33,8 @@ class Settings(BaseSettings):
     
     # OpenRouter (many models) - https://openrouter.ai/
     OPENROUTER_API_KEY: Optional[str] = None
-    OPENROUTER_MODEL: str = "xiaomi/mimo-v2-flash:free"
+    OPENROUTER_MODEL: str = "meta-llama/llama-3.1-70b-instruct:free"
+    OPENROUTER_CODER_MODEL: str = "mistralai/mixtral-8x7b-instruct:free"
     
     # OpenAI (optional) - https://platform.openai.com/
     OPENAI_API_KEY: Optional[str] = None
@@ -56,9 +43,6 @@ class Settings(BaseSettings):
     # Ollama (local) - http://localhost:11434
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "llama3.1"
-    
-    # Deepgram TTS - https://deepgram.com/
-    DEEPGRAM_API_KEY: Optional[str] = None
     
     # Legacy compatibility
     LLM_MODEL: str = "llama-3.3-70b-versatile"

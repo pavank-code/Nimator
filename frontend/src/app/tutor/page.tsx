@@ -2,23 +2,18 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import VoiceNotch from '../../components/tutor/VoiceNotch';
-import ChatPanel from '../../components/tutor/ChatPanel';
-import ContentPanel from '../../components/tutor/ContentPanel';
+import ChatMessage from '../../components/tutor/ChatMessage';
+import VideoPanel from '../../components/tutor/VideoPanel';
+import VoiceOrb from '../../components/tutor/VoiceOrb';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 interface Message {
+    id: string;
     role: 'user' | 'assistant';
     content: string;
     timestamp: Date;
-}
-
-interface VisualObject {
-    object_id: string;
-    object_type: string;
-    display_name: string;
-    color: string;
+    isStreaming?: boolean;
 }
 
 interface VideoData {
@@ -27,8 +22,7 @@ interface VideoData {
     progress: number;
     video_url?: string;
     prompt?: string;
-    voiceover_text?: string; // Text to speak in sync with video
-    visual_objects?: VisualObject[];
+    voiceover_text?: string;
 }
 
 export default function TutorPage() {
@@ -40,23 +34,40 @@ export default function TutorPage() {
     const [currentVideo, setCurrentVideo] = useState<VideoData | null>(null);
     const [isListening, setIsListening] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(false);
-    const [voiceEnabled, setVoiceEnabled] = useState(true);
+    const [showSidebar, setShowSidebar] = useState(true);
 
-    // Refs for sync playback
-    const videoRef = useRef<HTMLVideoElement | null>(null);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLTextAreaElement>(null);
     const recognitionRef = useRef<any>(null);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // Initialize with welcome message
+    // Welcome message
     useEffect(() => {
         setMessages([{
+            id: '1',
             role: 'assistant',
-            content: "Hello! I'm your AI tutor. Ask me anything about **mathematics**, **physics**, **algorithms**, or **machine learning**. I can also generate visual explanations when helpful! 🎓\n\nTry asking:\n- \"Explain gradient descent visually\"\n- \"How does the Pythagorean theorem work?\"\n- \"Show me how binary search works\"",
+            content: `# Welcome to AI Tutor! 🎓
+
+I'm your personal tutor for **mathematics**, **physics**, **algorithms**, and **machine learning**.
+
+I can help you with:
+- Explaining concepts with **LaTeX equations**: $E = mc^2$
+- Creating **visual animations** to illustrate ideas
+- Step-by-step problem solving
+
+$$\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}$$
+
+**Try asking:** "Explain gradient descent with a visual"`,
             timestamp: new Date()
         }]);
     }, []);
 
-    // Initialize speech recognition
+    // Auto-scroll
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
+    // Speech recognition setup
     useEffect(() => {
         if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
             const SpeechRecognition = (window as any).webkitSpeechRecognition;
@@ -72,303 +83,145 @@ export default function TutorPage() {
                 setInputValue(transcript);
             };
 
-            recognitionRef.current.onend = () => {
-                setIsListening(false);
-            };
-
-            recognitionRef.current.onerror = () => {
-                setIsListening(false);
-            };
+            recognitionRef.current.onend = () => setIsListening(false);
+            recognitionRef.current.onerror = () => setIsListening(false);
         }
     }, []);
 
-    const sendMessage = useCallback(async (messageText: string) => {
-        if (!messageText.trim() || isLoading) return;
+    const generateId = () => Math.random().toString(36).substr(2, 9);
 
-        const userMessage: Message = {
+    const sendMessage = useCallback(async (text: string) => {
+        if (!text.trim() || isLoading) return;
+
+        const userMsg: Message = {
+            id: generateId(),
             role: 'user',
-            content: messageText.trim(),
+            content: text.trim(),
             timestamp: new Date()
         };
 
-        setMessages(prev => [...prev, userMessage]);
+        setMessages(prev => [...prev, userMsg]);
         setInputValue('');
         setIsLoading(true);
 
+        // Add placeholder for assistant
+        const assistantId = generateId();
+        setMessages(prev => [...prev, {
+            id: assistantId,
+            role: 'assistant',
+            content: '',
+            timestamp: new Date(),
+            isStreaming: true
+        }]);
+
         try {
-            // Send to orchestrated tutor API (DeepSeek + Qwen pipeline)
             const response = await fetch(`${API_URL}/api/tutor/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: messageText.trim(),
-                    session_id: sessionId
-                })
+                body: JSON.stringify({ message: text.trim(), session_id: sessionId })
             });
 
-            if (!response.ok) {
-                throw new Error('Failed to get response');
-            }
+            if (!response.ok) throw new Error('Failed');
 
             const data = await response.json();
             setSessionId(data.session_id);
 
-            // Step 1: Add assistant message immediately (text displays first)
-            // Orchestrated endpoint uses 'explanation' instead of 'response'
-            const assistantMessage: Message = {
-                role: 'assistant',
-                content: data.explanation,
-                timestamp: new Date()
-            };
-            setMessages(prev => [...prev, assistantMessage]);
+            // Update assistant message
+            setMessages(prev => prev.map(m =>
+                m.id === assistantId
+                    ? { ...m, content: data.response, isStreaming: false }
+                    : m
+            ));
 
-            // Step 2: Handle video generation (orchestrator triggers it automatically)
-            if (data.video_generating && data.video_job_id) {
-                // Video generation already started by orchestrator
-                setCurrentVideo({
-                    job_id: data.video_job_id,
-                    status: 'processing',
-                    progress: 0,
-                    prompt: 'Synced visual explanation',
-                    voiceover_text: data.explanation,
-                    visual_objects: data.visual_objects || [],
-                    video_url: data.video_url
-                });
-
-                // Poll for video status if not ready yet
-                if (!data.video_url) {
-                    pollVideoStatus(data.video_job_id, data.explanation);
-                } else {
-                    // Video already ready - play with voice sync
-                    if (voiceEnabled) {
-                        playVideoWithVoice(data.video_url, data.explanation);
-                    }
-                }
-            } else {
-                // No video - just speak the response normally
-                if (voiceEnabled) {
-                    speakText(data.explanation);
-                }
+            // Handle video generation
+            if (data.should_generate_video && data.video_prompt) {
+                triggerVideoGeneration(data.video_prompt, data.response);
+            } else if (data.response) {
+                // Speak non-video responses
+                speakText(data.response);
             }
 
         } catch (error) {
-            console.error('Chat error:', error);
-            setMessages(prev => [...prev, {
-                role: 'assistant',
-                content: "I'm having trouble connecting. Please try again in a moment.",
-                timestamp: new Date()
-            }]);
+            setMessages(prev => prev.map(m =>
+                m.id === assistantId
+                    ? { ...m, content: "I'm having trouble connecting. Please try again.", isStreaming: false }
+                    : m
+            ));
         } finally {
             setIsLoading(false);
         }
-    }, [isLoading, sessionId, voiceEnabled]);
+    }, [isLoading, sessionId]);
 
-    // Speak text without video (for regular responses)
     const speakText = async (text: string) => {
-        const cleanText = text
-            .replace(/[#*_`]/g, '')
-            .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-            .replace(/\n+/g, '. ')
-            .slice(0, 500);
-
         setIsSpeaking(true);
-
         try {
             const response = await fetch(`${API_URL}/api/tutor/tts`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: cleanText, voice: 'aura-asteria-en' })
+                body: JSON.stringify({ text: text.slice(0, 500), voice: 'aura-asteria-en' })
             });
 
             if (response.ok) {
-                const audioBlob = await response.blob();
-                const audioUrl = URL.createObjectURL(audioBlob);
-                const audio = new Audio(audioUrl);
-                audio.onended = () => setIsSpeaking(false);
-                audio.onerror = () => setIsSpeaking(false);
-                await audio.play();
-            } else {
-                fallbackBrowserTTS(cleanText);
-            }
-        } catch (error) {
-            fallbackBrowserTTS(cleanText);
-        }
-    };
-
-    const fallbackBrowserTTS = (text: string) => {
-        if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.onend = () => setIsSpeaking(false);
-            window.speechSynthesis.speak(utterance);
-        } else {
-            setIsSpeaking(false);
-        }
-    };
-
-    // Play video and voice in sync
-    const playVideoWithVoice = async (videoUrl: string, voiceoverText: string) => {
-        if (!voiceEnabled) {
-            // Just play video without voice
-            return;
-        }
-
-        setIsSpeaking(true);
-
-        try {
-            // Pre-fetch the audio
-            const response = await fetch(`${API_URL}/api/tutor/tts`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    text: voiceoverText.replace(/[#*_`]/g, '').replace(/\n+/g, '. ').slice(0, 1000),
-                    voice: 'aura-asteria-en'
-                })
-            });
-
-            if (response.ok) {
-                const audioBlob = await response.blob();
-                const audioUrl = URL.createObjectURL(audioBlob);
-
-                // Create audio element for sync
-                const audio = new Audio(audioUrl);
+                const blob = await response.blob();
+                const audio = new Audio(URL.createObjectURL(blob));
                 audioRef.current = audio;
-
-                audio.onended = () => {
-                    setIsSpeaking(false);
-                };
-
-                // Play audio (video will be controlled by ContentPanel)
+                audio.onended = () => setIsSpeaking(false);
                 await audio.play();
             } else {
-                fallbackBrowserTTS(voiceoverText);
+                setIsSpeaking(false);
             }
-        } catch (error) {
-            console.error('Voice sync error:', error);
+        } catch {
             setIsSpeaking(false);
         }
     };
 
-    // Poll for video status from orchestrated endpoint
-    const pollVideoStatus = (jobId: string, voiceoverText: string) => {
-        const pollInterval = setInterval(async () => {
-            try {
-                const statusRes = await fetch(`${API_URL}/api/tutor/video/${jobId}`);
-                const statusData = await statusRes.json();
-
-                const isCompleted = statusData.status === 'completed';
-                const isFailed = statusData.status === 'failed';
-
-                setCurrentVideo(prev => prev ? {
-                    ...prev,
-                    status: statusData.status,
-                    progress: statusData.progress || 0,
-                    video_url: statusData.video_url
-                } : null);
-
-                if (isCompleted || isFailed) {
-                    clearInterval(pollInterval);
-
-                    // When video is ready, trigger sync playback
-                    if (isCompleted && statusData.video_url && voiceEnabled) {
-                        playVideoWithVoice(statusData.video_url, voiceoverText);
-                    }
-                }
-            } catch (e) {
-                console.error('Poll error:', e);
-            }
-        }, 2000);
-
-        // Timeout after 5 minutes
-        setTimeout(() => clearInterval(pollInterval), 300000);
-    };
-    const triggerVideoGeneration = async (
-        prompt: string,
-        isModify: boolean,
-        modifications?: any,
-        voiceoverText?: string
-    ) => {
-        setCurrentVideo({
-            job_id: '',
-            status: 'starting',
-            progress: 0,
-            prompt,
-            voiceover_text: voiceoverText
-        });
+    const triggerVideoGeneration = async (prompt: string, voiceoverText: string) => {
+        setCurrentVideo({ job_id: '', status: 'starting', progress: 0, prompt, voiceover_text: voiceoverText });
+        setShowSidebar(true);
 
         try {
-            let finalPrompt = prompt;
-            if (isModify && modifications) {
-                const modStr = Object.entries(modifications)
-                    .map(([k, v]) => `${k}: ${v}`)
-                    .join(', ');
-                finalPrompt = `${prompt} (with modifications: ${modStr})`;
-            }
-
             const response = await fetch(`${API_URL}/api/generate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    prompt: finalPrompt,
-                    duration_seconds: 60,
-                    sample_mode: true
-                })
+                body: JSON.stringify({ prompt, duration_seconds: 60, sample_mode: true })
             });
 
-            if (!response.ok) throw new Error('Failed to start generation');
+            if (!response.ok) throw new Error('Failed');
 
             const { job_id } = await response.json();
-            setCurrentVideo(prev => prev ? {
-                ...prev,
-                job_id,
-                status: 'processing'
-            } : null);
+            setCurrentVideo(prev => prev ? { ...prev, job_id, status: 'processing' } : null);
 
-            // Poll for status
-            const pollInterval = setInterval(async () => {
+            const poll = setInterval(async () => {
                 try {
-                    const statusRes = await fetch(`${API_URL}/api/status/${job_id}`);
-                    const statusData = await statusRes.json();
-
-                    const isCompleted = statusData.status === 'completed';
-                    const isFailed = statusData.status === 'failed';
+                    const res = await fetch(`${API_URL}/api/status/${job_id}`);
+                    const data = await res.json();
 
                     setCurrentVideo(prev => prev ? {
                         ...prev,
-                        status: statusData.status,
-                        progress: statusData.progress || 0,
-                        video_url: statusData.video_url
+                        status: data.status,
+                        progress: data.progress || 0,
+                        video_url: data.video_url
                     } : null);
 
-                    if (isCompleted || isFailed) {
-                        clearInterval(pollInterval);
-
-                        // Step 4: When video is ready, trigger sync playback
-                        if (isCompleted && statusData.video_url && voiceoverText && voiceEnabled) {
-                            playVideoWithVoice(statusData.video_url, voiceoverText);
+                    if (data.status === 'completed' || data.status === 'failed') {
+                        clearInterval(poll);
+                        if (data.status === 'completed' && voiceoverText) {
+                            speakText(voiceoverText);
                         }
                     }
-                } catch (e) {
-                    console.error('Poll error:', e);
-                }
+                } catch { }
             }, 2000);
 
-            setTimeout(() => clearInterval(pollInterval), 300000);
-
-        } catch (error) {
-            console.error('Video generation error:', error);
+            setTimeout(() => clearInterval(poll), 600000);
+        } catch {
             setCurrentVideo(null);
         }
     };
 
     const toggleListening = () => {
-        if (!recognitionRef.current) {
-            alert('Voice input is not supported in this browser.');
-            return;
-        }
-
+        if (!recognitionRef.current) return;
         if (isListening) {
             recognitionRef.current.stop();
-            setIsListening(false);
         } else {
             recognitionRef.current.start();
             setIsListening(true);
@@ -382,79 +235,107 @@ export default function TutorPage() {
         }
     };
 
-    // Handler for when video starts playing (called from ContentPanel)
-    const onVideoPlay = () => {
-        // Audio is already playing from playVideoWithVoice
-    };
-
-    // Handler to stop voice when video is cleared
-    const handleClearVideo = () => {
-        if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current = null;
-        }
-        setIsSpeaking(false);
-        setCurrentVideo(null);
-    };
-
     return (
-        <div className="flex flex-col h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
-            {/* Header */}
-            <header className="flex items-center justify-between px-6 py-4 border-b border-gray-700/50">
-                <button
-                    onClick={() => router.push('/')}
-                    className="text-gray-400 hover:text-white flex items-center gap-2 transition-colors"
-                >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Back
-                </button>
-                <h1 className="text-xl font-semibold text-white flex items-center gap-2">
-                    <span className="text-2xl">🎓</span>
-                    AI Tutor
-                    <span className="text-xs bg-gradient-to-r from-purple-500 to-pink-500 px-2 py-0.5 rounded-full">
-                        Premium
-                    </span>
-                </h1>
-                <button
-                    onClick={() => setVoiceEnabled(!voiceEnabled)}
-                    className={`p-2 rounded-lg transition-colors ${voiceEnabled ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400'
-                        }`}
-                    title={voiceEnabled ? 'Voice enabled' : 'Voice disabled'}
-                >
-                    {voiceEnabled ? '🔊' : '🔇'}
-                </button>
-            </header>
+        <div className="flex h-screen bg-[#212121] text-white">
+            {/* Main Chat Area */}
+            <div className="flex-1 flex flex-col">
+                {/* Header */}
+                <header className="flex items-center justify-between h-14 px-4 border-b border-white/10">
+                    <div className="flex items-center gap-3">
+                        <button onClick={() => router.push('/')} className="p-2 hover:bg-white/10 rounded-lg">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <h1 className="text-lg font-semibold">AI Tutor</h1>
+                    </div>
 
-            {/* Voice Notch */}
-            <VoiceNotch
-                isListening={isListening}
-                isSpeaking={isSpeaking}
-                onToggleListen={toggleListening}
-            />
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setShowSidebar(!showSidebar)}
+                            className={`p-2 rounded-lg transition ${showSidebar ? 'bg-white/10' : 'hover:bg-white/10'}`}
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                            </svg>
+                        </button>
+                    </div>
+                </header>
 
-            {/* Main Content - Split View */}
-            <main className="flex-1 flex overflow-hidden">
-                {/* Left: Chat Panel */}
-                <ChatPanel
-                    messages={messages}
-                    inputValue={inputValue}
-                    isLoading={isLoading}
+                {/* Messages */}
+                <div className="flex-1 overflow-y-auto">
+                    <div className="max-w-3xl mx-auto py-6 px-4">
+                        {messages.map(message => (
+                            <ChatMessage key={message.id} message={message} />
+                        ))}
+                        <div ref={messagesEndRef} />
+                    </div>
+                </div>
+
+                {/* Voice Orb */}
+                <VoiceOrb
                     isListening={isListening}
-                    onInputChange={setInputValue}
-                    onSend={() => sendMessage(inputValue)}
-                    onToggleListen={toggleListening}
-                    onKeyDown={handleKeyDown}
+                    isSpeaking={isSpeaking}
+                    onToggle={toggleListening}
                 />
 
-                {/* Right: Content Panel with sync playback */}
-                <ContentPanel
+                {/* Input Area - ChatGPT Style */}
+                <div className="p-4 border-t border-white/10">
+                    <div className="max-w-3xl mx-auto">
+                        <div className="relative flex items-end bg-[#2f2f2f] rounded-2xl border border-white/10">
+                            <textarea
+                                ref={inputRef}
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                placeholder="Message AI Tutor..."
+                                rows={1}
+                                className="flex-1 bg-transparent text-white placeholder-gray-500 resize-none outline-none p-4 pr-24 max-h-48 min-h-[56px]"
+                                style={{ height: 'auto' }}
+                                disabled={isLoading}
+                            />
+
+                            <div className="absolute right-2 bottom-2 flex items-center gap-1">
+                                {/* Voice Button */}
+                                <button
+                                    onClick={toggleListening}
+                                    className={`p-2 rounded-lg transition ${isListening ? 'bg-red-500 text-white' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
+                                >
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+                                    </svg>
+                                </button>
+
+                                {/* Send Button */}
+                                <button
+                                    onClick={() => sendMessage(inputValue)}
+                                    disabled={!inputValue.trim() || isLoading}
+                                    className={`p-2 rounded-lg transition ${inputValue.trim() && !isLoading ? 'bg-white text-black hover:bg-gray-200' : 'text-gray-600 cursor-not-allowed'}`}
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <p className="text-xs text-gray-500 text-center mt-2">
+                            AI Tutor can make mistakes. Verify important information.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Video Sidebar */}
+            {showSidebar && (
+                <VideoPanel
                     video={currentVideo}
-                    onGenerateNew={handleClearVideo}
                     isSpeaking={isSpeaking}
+                    onClose={() => setShowSidebar(false)}
+                    onClear={() => setCurrentVideo(null)}
                 />
-            </main>
+            )}
         </div>
     );
 }

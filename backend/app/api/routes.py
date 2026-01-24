@@ -14,6 +14,7 @@ from app.services.job_orchestrator import JobOrchestrator
 from app.api.tutor import router as tutor_router
 
 router = APIRouter()
+router.include_router(tutor_router)
 
 # Include tutor routes
 router.include_router(tutor_router)
