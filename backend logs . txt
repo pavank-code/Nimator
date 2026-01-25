@@ -1,0 +1,183 @@
+2026-01-25 03:30:17.320 | [DEBUG] LLM_PROVIDER setting: nvidia
+2026-01-25 03:30:17.320 | [DEBUG] NVIDIA_API_KEY set: yes
+2026-01-25 03:30:17.320 | [DEBUG] Explicit provider nvidia: key=set, model=deepseek-ai/deepseek-r1
+2026-01-25 03:30:17.337 | [DEBUG] LLM_PROVIDER setting: nvidia
+2026-01-25 03:30:17.337 | [DEBUG] NVIDIA_API_KEY set: yes
+2026-01-25 03:30:17.337 | [DEBUG] Explicit provider nvidia: key=set, model=deepseek-ai/deepseek-r1
+2026-01-25 03:30:17.337 | [DEBUG] LLM_PROVIDER setting: nvidia
+2026-01-25 03:30:17.337 | [DEBUG] NVIDIA_API_KEY set: yes
+2026-01-25 03:30:17.337 | [DEBUG] Explicit provider nvidia: key=set, model=deepseek-ai/deepseek-r1
+2026-01-25 03:30:17.337 | [DEBUG] LLM_PROVIDER setting: nvidia
+2026-01-25 03:30:17.337 | [DEBUG] NVIDIA_API_KEY set: yes
+2026-01-25 03:30:17.337 | [DEBUG] Explicit provider nvidia: key=set, model=deepseek-ai/deepseek-r1
+2026-01-25 03:30:17.337 | [DEBUG] LLM_PROVIDER setting: nvidia
+2026-01-25 03:30:17.337 | [DEBUG] NVIDIA_API_KEY set: yes
+2026-01-25 03:30:17.337 | [DEBUG] Explicit provider nvidia: key=set, model=deepseek-ai/deepseek-r1
+2026-01-25 03:30:17.367 | INFO:     Started server process [1]
+2026-01-25 03:30:17.367 | INFO:     Waiting for application startup.
+2026-01-25 03:30:17.368 | ✅ Visual Explainer Generator API started
+2026-01-25 03:30:17.368 |    Output directory: /app/outputs
+2026-01-25 03:30:17.368 |    LLM Provider: nvidia
+2026-01-25 03:30:17.368 | 
+2026-01-25 03:30:17.368 | 🔄 Initializing video cache...
+2026-01-25 03:30:17.368 | 
+2026-01-25 03:30:17.368 | 🚀 Loading existing videos into cache...
+2026-01-25 03:30:17.382 | ⏭️  Already cached: Mathematics
+2026-01-25 03:30:17.384 | 
+2026-01-25 03:30:17.384 | ✅ Cache Loading Summary:
+2026-01-25 03:30:17.384 |    Videos loaded: 0
+2026-01-25 03:30:17.385 | 
+2026-01-25 03:30:17.385 | 📊 Cache Stats:
+2026-01-25 03:30:17.385 |    Total cached videos: 4
+2026-01-25 03:30:17.385 |    Cache size: 0.0 MB
+2026-01-25 03:30:17.385 |    Topics: Machine Learning, Gradient Descent, Mathematics, Invalid
+2026-01-25 03:30:17.385 | 
+2026-01-25 03:30:17.385 | 🎯 Checking for demo video cache...
+2026-01-25 03:30:17.385 | ✅ GRADIENT DESCENT - CACHED
+2026-01-25 03:30:17.386 | ⏳ MATRIX MULTIPLICATION - PENDING (will generate on demand)
+2026-01-25 03:30:17.386 | ⏳ BINARY SEARCH ALGORITHM - PENDING (will generate on demand)
+2026-01-25 03:30:17.386 | ⏳ PERFORMANCE ALGORITHM - PENDING (will generate on demand)
+2026-01-25 03:30:17.386 | ⏳ SORTING ALGORITHM - PENDING (will generate on demand)
+2026-01-25 03:30:17.387 | INFO:     Application startup complete.
+2026-01-25 03:30:17.388 | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2026-01-25 03:30:21.170 | INFO:     127.0.0.1:58710 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:30:31.222 | INFO:     127.0.0.1:57250 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:30:41.297 | INFO:     127.0.0.1:35440 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:30:51.348 | INFO:     127.0.0.1:42926 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:31:01.421 | INFO:     127.0.0.1:37372 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:31:08.719 | INFO:     172.18.0.1:53862 - "OPTIONS /api/tutor/chat HTTP/1.1" 200 OK
+2026-01-25 03:31:08.725 | [DEBUG] LLM_PROVIDER setting: nvidia
+2026-01-25 03:31:08.725 | [DEBUG] NVIDIA_API_KEY set: yes
+2026-01-25 03:31:08.725 | [DEBUG] Explicit provider nvidia: key=set, model=deepseek-ai/deepseek-r1
+2026-01-25 03:31:08.725 | [DEBUG] Using provider: nvidia, model: deepseek-ai/deepseek-r1, format: nvidia
+2026-01-25 03:31:08.733 | [NVIDIA] Calling model: deepseek-ai/deepseek-r1
+2026-01-25 03:31:11.522 | INFO:     127.0.0.1:48702 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:31:11.987 | [NVIDIA] Response status: 200
+2026-01-25 03:31:11.988 | [NVIDIA] Success - got response
+2026-01-25 03:31:11.988 | Falling back to provider: openrouter
+2026-01-25 03:31:11.988 | [DEBUG] Using provider: openrouter, model: meta-llama/llama-3.1-70b-instruct:free, format: openai
+2026-01-25 03:31:12.702 | LLM request failed (openrouter): Client error '401 Unauthorized' for url 'https://openrouter.ai/api/v1/chat/completions'
+2026-01-25 03:31:12.702 | For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+2026-01-25 03:31:12.702 | Falling back to provider: gemini
+2026-01-25 03:31:12.702 | [DEBUG] Using provider: gemini, model: gemini-2.0-flash, format: gemini
+2026-01-25 03:31:13.397 | LLM request failed (gemini): Client error '403 Forbidden' for url 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyACDtJWJuQRiD0ur3XjvO0_StyFByYKjPQ'
+2026-01-25 03:31:13.397 | For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403
+2026-01-25 03:31:13.399 | [DEBUG] Using provider: nvidia, model: deepseek-ai/deepseek-r1, format: nvidia
+2026-01-25 03:31:13.404 | [NVIDIA] Calling model: deepseek-ai/deepseek-r1
+2026-01-25 03:31:17.396 | [NVIDIA] Response status: 200
+2026-01-25 03:31:17.396 | [NVIDIA] Success - got response
+2026-01-25 03:31:17.403 | INFO:     172.18.0.1:53862 - "POST /api/tutor/chat HTTP/1.1" 200 OK
+2026-01-25 03:31:17.408 | INFO:     172.18.0.1:53862 - "OPTIONS /api/generate HTTP/1.1" 200 OK
+2026-01-25 03:31:17.411 | [DEBUG] Using provider: nvidia, model: deepseek-ai/deepseek-r1, format: nvidia
+2026-01-25 03:31:17.416 | [NVIDIA] Calling model: deepseek-ai/deepseek-r1
+2026-01-25 03:31:20.175 | [NVIDIA] Response status: 200
+2026-01-25 03:31:20.175 | [NVIDIA] Success - got response
+2026-01-25 03:31:20.175 | Falling back to provider: openrouter
+2026-01-25 03:31:20.176 | [DEBUG] Using provider: openrouter, model: meta-llama/llama-3.1-70b-instruct:free, format: openai
+2026-01-25 03:31:20.459 | LLM request failed (openrouter): Client error '401 Unauthorized' for url 'https://openrouter.ai/api/v1/chat/completions'
+2026-01-25 03:31:20.459 | For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+2026-01-25 03:31:20.459 | Falling back to provider: gemini
+2026-01-25 03:31:20.459 | [DEBUG] Using provider: gemini, model: gemini-2.0-flash, format: gemini
+2026-01-25 03:31:20.957 | LLM request failed (gemini): Client error '403 Forbidden' for url 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyACDtJWJuQRiD0ur3XjvO0_StyFByYKjPQ'
+2026-01-25 03:31:20.957 | For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403
+2026-01-25 03:31:20.957 | 🎬 Starting visual-synchronized pipeline (90s)...
+2026-01-25 03:31:20.957 |    Topic: Physics
+2026-01-25 03:31:20.957 |    Target duration: 90 seconds
+2026-01-25 03:31:20.957 |    Prompt: An animated time-domain waveform transforming into frequency spectrum components. Starting with a si...
+2026-01-25 03:31:20.957 | 📝 Stage 1: Generating synchronized script...
+2026-01-25 03:31:20.957 | [DEBUG] Using provider: nvidia, model: deepseek-ai/deepseek-r1, format: nvidia
+2026-01-25 03:31:20.963 | [NVIDIA] Calling model: deepseek-ai/deepseek-r1
+2026-01-25 03:31:21.573 | INFO:     127.0.0.1:33332 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:31:31.643 | INFO:     127.0.0.1:39412 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:31:41.699 | INFO:     127.0.0.1:55890 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:31:50.478 | [NVIDIA] Response status: 200
+2026-01-25 03:31:50.478 | [NVIDIA] Success - got response
+2026-01-25 03:31:50.478 |    ✅ Script generated: 6 scenes
+2026-01-25 03:31:50.478 |    Title: Visualizing Frequency: From Waves to Spectrum
+2026-01-25 03:31:50.478 | 🎨 Stage 2: Converting script to Manim code...
+2026-01-25 03:31:50.478 | Scene 1 generation failed: '\n    "scene_type"'
+2026-01-25 03:31:50.479 | Scene 2 generation failed: '\n    "scene_type"'
+2026-01-25 03:31:50.479 | Scene 3 generation failed: '\n    "scene_type"'
+2026-01-25 03:31:50.479 | Scene 4 generation failed: '\n    "scene_type"'
+2026-01-25 03:31:50.479 | Scene 5 generation failed: '\n    "scene_type"'
+2026-01-25 03:31:50.479 | Scene 6 generation failed: '\n    "scene_type"'
+2026-01-25 03:31:50.479 |    ✅ Generated 6 Manim scenes
+2026-01-25 03:31:50.479 | 🔄 Stage 3: Applying visual-first narration sync...
+2026-01-25 03:31:50.479 |    ✅ Narration synchronized for 6 scenes
+2026-01-25 03:31:50.479 |    Scene type distribution: {'graph_2d': 6}
+2026-01-25 03:31:50.523 | INFO:     172.18.0.1:53862 - "POST /api/generate HTTP/1.1" 200 OK
+2026-01-25 03:31:51.756 | INFO:     127.0.0.1:39268 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:31:52.537 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:31:54.538 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:31:56.536 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:31:58.536 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:00.537 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:01.829 | INFO:     127.0.0.1:53714 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:32:02.530 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:04.540 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:06.532 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:08.536 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:10.538 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:11.896 | INFO:     127.0.0.1:56768 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:32:12.547 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:14.538 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:16.535 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:18.535 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:20.545 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:21.955 | INFO:     127.0.0.1:52628 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:32:22.538 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:24.538 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:26.537 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:28.536 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:30.536 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:32.021 | INFO:     127.0.0.1:56372 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:32:32.530 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:34.536 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:36.536 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:38.536 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:40.538 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:42.096 | INFO:     127.0.0.1:37886 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:32:42.536 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:44.535 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:46.534 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:48.534 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:50.533 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:52.171 | INFO:     127.0.0.1:41510 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:32:52.536 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:54.533 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:56.537 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:32:58.534 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:33:00.535 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:33:02.302 | INFO:     127.0.0.1:39556 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:33:02.539 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:33:04.542 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:33:06.542 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:33:08.540 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:33:10.540 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:33:12.369 | INFO:     127.0.0.1:36736 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:33:12.533 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:33:14.533 | INFO:     172.18.0.1:53862 - "GET /api/status/e0c5f3c4-620d-46eb-bc5c-b2689f25421b HTTP/1.1" 200 OK
+2026-01-25 03:33:14.537 | INFO:     172.18.0.1:53862 - "OPTIONS /api/tutor/tts HTTP/1.1" 200 OK
+2026-01-25 03:33:14.541 | INFO:     172.18.0.1:53862 - "POST /api/tutor/tts HTTP/1.1" 503 Service Unavailable
+2026-01-25 03:33:14.545 | INFO:     172.18.0.1:34322 - "GET /videos/e0c5f3c4-620d-46eb-bc5c-b2689f25421b.mp4 HTTP/1.1" 200 OK
+2026-01-25 03:33:22.423 | INFO:     127.0.0.1:47082 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:33:32.498 | INFO:     127.0.0.1:35954 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:33:42.563 | INFO:     127.0.0.1:48864 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:33:52.612 | INFO:     127.0.0.1:39810 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:34:02.677 | INFO:     127.0.0.1:47250 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:34:12.733 | INFO:     127.0.0.1:38508 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:34:22.791 | INFO:     127.0.0.1:57694 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:34:32.847 | INFO:     127.0.0.1:43910 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:34:42.923 | INFO:     127.0.0.1:54214 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:34:52.967 | INFO:     127.0.0.1:44282 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:35:03.019 | INFO:     127.0.0.1:36802 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:35:13.066 | INFO:     127.0.0.1:54594 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:35:23.119 | INFO:     127.0.0.1:53310 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:35:33.171 | INFO:     127.0.0.1:52694 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:35:43.233 | INFO:     127.0.0.1:49240 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:35:53.293 | INFO:     127.0.0.1:59712 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:36:03.366 | INFO:     127.0.0.1:36640 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:36:13.417 | INFO:     127.0.0.1:37442 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:36:23.481 | INFO:     127.0.0.1:54418 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:36:33.527 | INFO:     127.0.0.1:59100 - "GET /health HTTP/1.1" 200 OK
+2026-01-25 03:36:43.611 | INFO:     127.0.0.1:54488 - "GET /health HTTP/1.1" 200 OK

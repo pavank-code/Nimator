@@ -53,7 +53,7 @@ class ManimCodeGenerator:
         {"primary": "#14B8A6", "secondary": "#F97316", "accent": "#6366F1"},  # Teal/Orange/Indigo
     ]
 
-    SCENE_GENERATION_PROMPT = """You are an expert Manim animator. Convert this script scene into precise Manim parameters.
+SCENE_GENERATION_PROMPT = """You are an expert Manim animator. Convert this script scene into precise Manim parameters.
 
 SCRIPT SCENE:
 Scene Number: {scene_number}
@@ -63,51 +63,44 @@ Visual Description: {visual_description}
 Visual Elements: {visual_elements}
 Duration: {duration_seconds} seconds
 
-AVAILABLE SCENE TYPES (you MUST choose ONE of these 4 types):
+AVAILABLE SCENE TYPES (Choose the best fit):
 
-1. "graph_2d" - For plotting functions, curves, derivatives, integrals, mathematical relationships
-   REQUIRED: function (Python syntax: "x**2", "sin(x)", "exp(-x**2)", "log(x+1)", etc.)
-   Optional: x_range [-5, 5], y_range [-3, 3], show_derivative (true/false), moving_dot (true/false), 
-             start_x (-5), show_tangent (true/false), tangent_x (0), highlight_area (true/false)
-   CRITICAL: Use ** for power (not ^), use sin/cos/tan/exp/log (not np.sin)
+1. "graph_2d" - Plots, curves, calculus.
+   REQUIRED: function (Python syntax e.g. "x**2")
+   Optional: x_range, y_range, show_derivative, moving_dot
 
-2. "vector_arrows" - For showing vectors, forces, gradients, directions, fields
-   REQUIRED: vectors (list of [x,y] pairs, max 8)
-   Optional: labels (list of LaTeX strings like ["\\vec{{v}}", "\\nabla f"]), colors (list of hex colors),
-             origin [0, 0], show_components (true/false)
+2. "graph_3d" - 3D Surfaces, Terrain.
+   REQUIRED: function (Python syntax e.g. "cos(x) + sin(y)")
+   Optional: u_range, v_range, rotation_speed
 
-3. "dots_paths" - For tracing paths, showing trajectories, particle motion, following curves
-   REQUIRED: start_point [x,y], end_point [x,y]
-   Optional: path_type ("line", "curve", "spiral", "bezier"), color (hex), num_dots (1-5)
+3. "vector_arrows" - Vectors, Gradients, Fields.
+   REQUIRED: vectors (list of [x,y])
+   Optional: labels, origin
 
-4. "text_labels" - For equations, formulas, key text, introductions, summaries
-   REQUIRED: text (LaTeX or plain text, e.g., "f(x) = x^2" or "$\\frac{{d}}{{dx}}x^2 = 2x$")
-   Optional: math_mode (true for LaTeX), position [0, 0], font_size (48), color (hex), is_intro (true/false)
+4. "geometry_shapes" - Shapes, Polygons, Boolean Ops.
+   REQUIRED: shapes (list of "Square", "Circle", etc.)
+   Optional: morph (true/false)
 
-COLOR PALETTE TO USE:
-{colors}
+5. "physics_sim" - Pendulums, Gravity, Collisions.
+   REQUIRED: sim_type ("pendulum", "gravity", "collision")
 
-FUNCTION EXAMPLES (prefer variety - use DIFFERENT functions):
-- Polynomial: "x**2", "x**3", "x**4 - 4*x**2", "(x-1)*(x+1)"
-- Trigonometric: "sin(x)", "cos(x)", "sin(2*x)", "cos(x/2)"  
-- Exponential: "exp(-x**2)", "exp(x)/10", "1/(1+exp(-x))"
-- Logarithmic: "log(x+1)", "log(abs(x)+1)"
-- Rational: "1/(1+x**2)", "x/(1+x**2)"
-- Absolute: "abs(x)", "abs(x-2) + abs(x+2)"
+6. "media_display" - Images, Icons.
+   REQUIRED: media_type ("image", "svg"), path/url
+   
+7. "dots_paths" - Tracing paths.
+8. "text_labels" - Key text/math.
 
 CRITICAL RULES:
-1. scene_type MUST be one of: "graph_2d", "vector_arrows", "dots_paths", "text_labels"
-2. For graph_2d: function MUST use Python/SymPy syntax (** for power, sin/cos/exp/log without np.)
-3. show_derivative MUST be a boolean (true/false), NOT a string
-4. narration MUST be EXACTLY the voiceover text provided
+1. scene_type MUST be valid (see above).
+2. For graph_2d/3d: function MUST use Python/SymPy syntax (** for power).
 
 Return ONLY valid JSON:
 {{
-    "scene_type": "one of the 4 types above",
-    "title": "short descriptive title",
-    "narration": "exact voiceover text",
-    "color": "use primary color from the palette above",
-    ...scene-type specific parameters...
+    "scene_type": "valid_type",
+    "title": "short title",
+    "narration": "exact voiceover",
+    "color": "hex",
+    ...type specific params...
 }}"""
 
     def __init__(self):
@@ -193,17 +186,20 @@ Return ONLY valid JSON:
             scene["narration"] = script_scene.get("voiceover", scene.get("narration", ""))
             
             # Validate scene type - ONLY 4 valid types
-            valid_types = ["graph_2d", "vector_arrows", "dots_paths", "text_labels"]
+            # Validate scene type
+            valid_types = [
+                "graph_2d", "graph_3d", "vector_arrows", "dots_paths", 
+                "text_labels", "geometry_shapes", "physics_sim", "media_display"
+            ]
             if scene.get("scene_type") not in valid_types:
                 # Map invalid types to valid ones
                 invalid_type = scene.get("scene_type", "")
                 type_mapping = {
-                    "graph_3d": "graph_2d",
-                    "transformation": "dots_paths",
+                    "transformation": "geometry_shapes",
                     "equation_sequence": "text_labels",
                     "comparison": "graph_2d",
-                    "equation_morph": "text_labels",
-                    "vector_field": "vector_arrows"
+                    "vector_field": "vector_arrows",
+                    "3d_plot": "graph_3d"
                 }
                 scene["scene_type"] = type_mapping.get(invalid_type, "graph_2d")
             
@@ -239,13 +235,13 @@ Return ONLY valid JSON:
         # Map visual types to VALID scene types only
         type_mapping = {
             "graph_2d": "graph_2d",
-            "graph_3d": "graph_2d",  # Fallback to 2D
+            "graph_3d": "graph_3d",
             "vector_field": "vector_arrows",
-            "transformation": "dots_paths",
+            "transformation": "geometry_shapes",
             "equation_morph": "text_labels",
             "comparison": "graph_2d",
             "diagram": "vector_arrows",
-            "particle_motion": "dots_paths"
+            "particle_motion": "physics_sim"
         }
         
         scene_type = type_mapping.get(visual_type, "graph_2d")
@@ -322,6 +318,41 @@ Return ONLY valid JSON:
                 "text": text,
                 "math_mode": True if "=" in text or "\\" in text else False,
                 "is_intro": index == 0,
+                "color": colors["primary"]
+            }
+        elif scene_type == "graph_3d":
+             return {
+                "scene_type": "graph_3d",
+                "title": script_scene.get("visual_description", "")[:40],
+                "narration": voiceover,
+                "function": "cos(x) + sin(y)" if index % 2 == 0 else "x**2 + y**2",
+                "u_range": [-2, 2],
+                "v_range": [-2, 2],
+                "color": colors["primary"]
+            }
+        elif scene_type == "geometry_shapes":
+             return {
+                "scene_type": "geometry_shapes",
+                "title": script_scene.get("visual_description", "")[:40],
+                "narration": voiceover,
+                "shapes": ["Square", "Circle"],
+                "morph": True,
+                "color": colors["primary"]
+            }
+        elif scene_type == "physics_sim":
+             return {
+                "scene_type": "physics_sim",
+                "title": script_scene.get("visual_description", "")[:40],
+                "narration": voiceover,
+                "sim_type": "pendulum",
+                "color": colors["primary"]
+            }
+        elif scene_type == "media_display":
+             return {
+                "scene_type": "text_labels", # Fallback for media is safely text
+                "title": "Media Placeholder",
+                "narration": voiceover,
+                "text": "Image: " + script_scene.get("visual_description", "")[:30],
                 "color": colors["primary"]
             }
         else:
