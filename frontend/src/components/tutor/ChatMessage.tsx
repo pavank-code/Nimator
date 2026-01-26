@@ -94,7 +94,7 @@ function escapeHtml(text: string): string {
         .replace(/>/g, '&gt;');
 }
 
-export default function ChatMessage({ message }: ChatMessageProps) {
+function ChatMessage({ message }: ChatMessageProps) {
     const contentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -153,3 +153,5 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         </div>
     );
 }
+
+export default React.memo(ChatMessage);
