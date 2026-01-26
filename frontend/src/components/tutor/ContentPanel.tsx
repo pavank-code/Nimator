@@ -99,9 +99,9 @@ export default function ContentPanel({ video, onGenerateNew, isSpeaking = false 
                         <div className="text-sm text-gray-500">
                             Try asking:
                             <ul className="mt-2 space-y-1">
-                                <li className="text-gray-400">"Show me gradient descent visually"</li>
-                                <li className="text-gray-400">"Visualize how sorting algorithms work"</li>
-                                <li className="text-gray-400">"Explain the Pythagorean theorem with animation"</li>
+                                <li className="text-gray-400">&quot;Show me gradient descent visually&quot;</li>
+                                <li className="text-gray-400">&quot;Visualize how sorting algorithms work&quot;</li>
+                                <li className="text-gray-400">&quot;Explain the Pythagorean theorem with animation&quot;</li>
                             </ul>
                         </div>
                     </div>
@@ -163,7 +163,7 @@ export default function ContentPanel({ video, onGenerateNew, isSpeaking = false 
                                 </button>
                             </div>
                             <p className="text-xs text-gray-500 mt-3">
-                                💡 The AI tutor narrates the video. Ask for changes like "make it slower" or "add more detail"
+                                💡 The AI tutor narrates the video. Ask for changes like &quot;make it slower&quot; or &quot;add more detail&quot;
                             </p>
                         </div>
                     </div>
@@ -209,7 +209,7 @@ export default function ContentPanel({ video, onGenerateNew, isSpeaking = false 
 
                         {video?.prompt && (
                             <p className="text-sm text-gray-500 max-w-xs mx-auto">
-                                "{video.prompt}"
+                                &quot;{video.prompt}&quot;
                             </p>
                         )}
 

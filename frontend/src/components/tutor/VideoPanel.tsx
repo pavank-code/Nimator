@@ -114,7 +114,7 @@ export default function VideoPanel({ video, isSpeaking, onClose, onClear }: Vide
                         </div>
 
                         <p className="text-xs text-gray-500 mt-3 text-center">
-                            💡 Say "make it slower" to modify
+                            💡 Say &quot;make it slower&quot; to modify
                         </p>
                     </div>
                 ) : (
