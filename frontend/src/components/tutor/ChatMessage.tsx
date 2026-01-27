@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, memo } from 'react';
 
 interface Message {
     id: string;
@@ -94,7 +94,8 @@ function escapeHtml(text: string): string {
         .replace(/>/g, '&gt;');
 }
 
-export default function ChatMessage({ message }: ChatMessageProps) {
+// Memoized to prevent re-renders when parent state (like input value) changes
+const ChatMessage = memo(({ message }: ChatMessageProps) => {
     const contentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -152,4 +153,6 @@ export default function ChatMessage({ message }: ChatMessageProps) {
             </div>
         </div>
     );
-}
+});
+
+export default ChatMessage;
