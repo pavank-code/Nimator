@@ -53,55 +53,55 @@ class ManimCodeGenerator:
         {"primary": "#14B8A6", "secondary": "#F97316", "accent": "#6366F1"},  # Teal/Orange/Indigo
     ]
 
-SCENE_GENERATION_PROMPT = """You are an expert Manim animator. Convert this script scene into precise Manim parameters.
+    SCENE_GENERATION_PROMPT = """You are an expert Manim animator. Convert this script scene into precise Manim parameters.
 
-SCRIPT SCENE:
-Scene Number: {scene_number}
-Voiceover: "{voiceover}"
-Visual Type: {visual_type}
-Visual Description: {visual_description}
-Visual Elements: {visual_elements}
-Duration: {duration_seconds} seconds
+    SCRIPT SCENE:
+    Scene Number: {scene_number}
+    Voiceover: "{voiceover}"
+    Visual Type: {visual_type}
+    Visual Description: {visual_description}
+    Visual Elements: {visual_elements}
+    Duration: {duration_seconds} seconds
 
-AVAILABLE SCENE TYPES (Choose the best fit):
+    AVAILABLE SCENE TYPES (Choose the best fit):
 
-1. "graph_2d" - Plots, curves, calculus.
-   REQUIRED: function (Python syntax e.g. "x**2")
-   Optional: x_range, y_range, show_derivative, moving_dot
+    1. "graph_2d" - Plots, curves, calculus.
+       REQUIRED: function (Python syntax e.g. "x**2")
+       Optional: x_range, y_range, show_derivative, moving_dot
 
-2. "graph_3d" - 3D Surfaces, Terrain.
-   REQUIRED: function (Python syntax e.g. "cos(x) + sin(y)")
-   Optional: u_range, v_range, rotation_speed
+    2. "graph_3d" - 3D Surfaces, Terrain.
+       REQUIRED: function (Python syntax e.g. "cos(x) + sin(y)")
+       Optional: u_range, v_range, rotation_speed
 
-3. "vector_arrows" - Vectors, Gradients, Fields.
-   REQUIRED: vectors (list of [x,y])
-   Optional: labels, origin
+    3. "vector_arrows" - Vectors, Gradients, Fields.
+       REQUIRED: vectors (list of [x,y])
+       Optional: labels, origin
 
-4. "geometry_shapes" - Shapes, Polygons, Boolean Ops.
-   REQUIRED: shapes (list of "Square", "Circle", etc.)
-   Optional: morph (true/false)
+    4. "geometry_shapes" - Shapes, Polygons, Boolean Ops.
+       REQUIRED: shapes (list of "Square", "Circle", etc.)
+       Optional: morph (true/false)
 
-5. "physics_sim" - Pendulums, Gravity, Collisions.
-   REQUIRED: sim_type ("pendulum", "gravity", "collision")
+    5. "physics_sim" - Pendulums, Gravity, Collisions.
+       REQUIRED: sim_type ("pendulum", "gravity", "collision")
 
-6. "media_display" - Images, Icons.
-   REQUIRED: media_type ("image", "svg"), path/url
-   
-7. "dots_paths" - Tracing paths.
-8. "text_labels" - Key text/math.
+    6. "media_display" - Images, Icons.
+       REQUIRED: media_type ("image", "svg"), path/url
 
-CRITICAL RULES:
-1. scene_type MUST be valid (see above).
-2. For graph_2d/3d: function MUST use Python/SymPy syntax (** for power).
+    7. "dots_paths" - Tracing paths.
+    8. "text_labels" - Key text/math.
 
-Return ONLY valid JSON:
-{{
-    "scene_type": "valid_type",
-    "title": "short title",
-    "narration": "exact voiceover",
-    "color": "hex",
-    ...type specific params...
-}}"""
+    CRITICAL RULES:
+    1. scene_type MUST be valid (see above).
+    2. For graph_2d/3d: function MUST use Python/SymPy syntax (** for power).
+
+    Return ONLY valid JSON:
+    {{
+        "scene_type": "valid_type",
+        "title": "short title",
+        "narration": "exact voiceover",
+        "color": "hex",
+        ...type specific params...
+    }}"""
 
     def __init__(self):
         self.llm = LLMClient()
