@@ -94,9 +94,14 @@ class VideoCacheManager:
         video_list_key = "video:list"
         cache_keys = self.redis_client.smembers(video_list_key)
         
+        if not cache_keys:
+            return []
+
         videos = []
-        for key in cache_keys:
-            data = self.redis_client.get(key)
+        # Optimization: Batch fetch all videos to avoid N+1 queries
+        data_list = self.redis_client.mget(list(cache_keys))
+
+        for data in data_list:
             if data:
                 videos.append(json.loads(data))
         
@@ -138,12 +143,15 @@ class VideoCacheManager:
             "cache_size_approx": 0
         }
         
-        for key in cache_keys:
-            data = self.redis_client.get(key)
-            if data:
-                cache_entry = json.loads(data)
-                stats["cached_topics"].append(cache_entry["topic"])
-                stats["cache_size_approx"] += len(data)
+        if cache_keys:
+            # Optimization: Batch fetch all videos
+            data_list = self.redis_client.mget(list(cache_keys))
+
+            for data in data_list:
+                if data:
+                    cache_entry = json.loads(data)
+                    stats["cached_topics"].append(cache_entry["topic"])
+                    stats["cache_size_approx"] += len(data)
         
         stats["cache_size_mb"] = round(stats["cache_size_approx"] / 1024 / 1024, 2)
         
