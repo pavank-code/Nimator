@@ -5,6 +5,7 @@ Converts synchronized scripts into executable Manim scene specifications.
 from typing import Dict, Any, Optional, List
 import json
 import random
+import asyncio
 from app.services.topic_classifier import LLMClient
 
 
@@ -53,7 +54,7 @@ class ManimCodeGenerator:
         {"primary": "#14B8A6", "secondary": "#F97316", "accent": "#6366F1"},  # Teal/Orange/Indigo
     ]
 
-SCENE_GENERATION_PROMPT = """You are an expert Manim animator. Convert this script scene into precise Manim parameters.
+    SCENE_GENERATION_PROMPT = """You are an expert Manim animator. Convert this script scene into precise Manim parameters.
 
 SCRIPT SCENE:
 Scene Number: {scene_number}
@@ -113,23 +114,31 @@ Return ONLY valid JSON:
         Convert a complete script into Manim scene specifications.
         Ensures variety and synchronization.
         """
-        scenes = []
         script_scenes = script.get("scenes", [])
+        tasks = []
+
+        async def generate_safe(index: int, s_scene: Dict[str, Any], cols: Dict[str, str]) -> Dict[str, Any]:
+            try:
+                result = await self._generate_single_scene(s_scene, cols)
+                if result:
+                    return result
+            except Exception as e:
+                print(f"Scene {index+1} generation failed (wrapper): {e}")
+
+            # Fallback if result is None or exception occurred
+            return self._generate_fallback_scene(s_scene, cols, index)
         
         for i, script_scene in enumerate(script_scenes):
             # Get next color palette for variety
             colors = self.COLOR_PALETTES[self.color_index % len(self.COLOR_PALETTES)]
             self.color_index += 1
             
-            try:
-                manim_scene = await self._generate_single_scene(script_scene, colors)
-                if manim_scene:
-                    scenes.append(manim_scene)
-            except Exception as e:
-                print(f"Scene {i+1} generation failed: {e}")
-                # Generate fallback scene
-                fallback = self._generate_fallback_scene(script_scene, colors, i)
-                scenes.append(fallback)
+            # Create task for concurrent execution
+            tasks.append(generate_safe(i, script_scene, colors))
+
+        # Execute in parallel
+        # generate_safe guarantees a dict is returned (success or fallback)
+        scenes = await asyncio.gather(*tasks)
         
         return scenes
     
