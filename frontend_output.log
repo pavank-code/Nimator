@@ -1,0 +1,12 @@
+
+> visual-explainer-generator-frontend@1.0.0 dev
+> next dev
+
+   ▲ Next.js 14.0.4
+   - Local:        http://localhost:3000
+
+ ✓ Ready in 2.6s
+ ○ Compiling /tutor ...
+ ✓ Compiled /tutor in 4.6s (504 modules)
+
+ ⚠ metadata.metadataBase is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
