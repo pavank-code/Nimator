@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel, Field
 from typing import Optional
 import uuid
-import redis
+import redis.asyncio as redis
 import json
 
 from app.config import settings
@@ -10,7 +10,6 @@ from app.services.topic_classifier import TopicClassifier
 from app.services.scene_planner import ScenePlanner
 from app.services.scene_validator import validate_scenes
 from app.services.math_validator import validate_scene as validate_math
-from app.services.job_orchestrator import JobOrchestrator
 from app.services.cache_manager import get_cache_manager
 from app.api.tutor import router as tutor_router
 
@@ -30,7 +29,6 @@ redis_client = redis.Redis(
 # Initialize services
 topic_classifier = TopicClassifier()
 scene_planner = ScenePlanner()
-job_orchestrator = JobOrchestrator(redis_client)
 
 
 class VideoGenerationRequest(BaseModel):
@@ -126,11 +124,11 @@ async def generate_video(request: VideoGenerationRequest, background_tasks: Back
     }
     
     # Store job in Redis
-    redis_client.set(f"job:{job_id}", json.dumps(job_data))
-    redis_client.expire(f"job:{job_id}", 3600)  # 1 hour TTL
+    await redis_client.set(f"job:{job_id}", json.dumps(job_data))
+    await redis_client.expire(f"job:{job_id}", 3600)  # 1 hour TTL
     
     # Add to render queue
-    redis_client.lpush("render_queue", json.dumps(job_data))
+    await redis_client.lpush("render_queue", json.dumps(job_data))
     
     return VideoGenerationResponse(
         job_id=job_id,
@@ -144,7 +142,7 @@ async def get_job_status(job_id: str):
     """
     Get the status of a video generation job.
     """
-    job_data = redis_client.get(f"job:{job_id}")
+    job_data = await redis_client.get(f"job:{job_id}")
     
     if not job_data:
         raise HTTPException(status_code=404, detail="Job not found")
@@ -169,7 +167,7 @@ async def get_video(job_id: str):
     """
     Get video details for a completed job.
     """
-    job_data = redis_client.get(f"job:{job_id}")
+    job_data = await redis_client.get(f"job:{job_id}")
     
     if not job_data:
         raise HTTPException(status_code=404, detail="Job not found")
@@ -196,8 +194,8 @@ async def get_video(job_id: str):
 async def list_cached_videos():
     """List all cached videos ready for instant playback."""
     cache_manager = get_cache_manager()
-    cached_videos = cache_manager.list_cached_videos()
-    stats = cache_manager.get_cache_stats()
+    cached_videos = await cache_manager.list_cached_videos()
+    stats = await cache_manager.get_cache_stats()
     
     return {
         "cached_count": len(cached_videos),
@@ -210,10 +208,10 @@ async def list_cached_videos():
 async def check_cache(topic: str):
     """Check if a video is cached for a topic."""
     cache_manager = get_cache_manager()
-    cached = cache_manager.is_cached(topic)
+    cached = await cache_manager.is_cached(topic)
     
     if cached:
-        video_data = cache_manager.get_cached_video(topic)
+        video_data = await cache_manager.get_cached_video(topic)
         return {
             "topic": topic,
             "cached": True,
@@ -231,7 +229,7 @@ async def check_cache(topic: str):
 async def clear_all_cache():
     """Clear all cached videos."""
     cache_manager = get_cache_manager()
-    deleted = cache_manager.clear_cache()
+    deleted = await cache_manager.clear_cache()
     
     return {
         "status": "cleared",
@@ -243,7 +241,7 @@ async def clear_all_cache():
 async def clear_topic_cache(topic: str):
     """Clear cache for a specific topic."""
     cache_manager = get_cache_manager()
-    deleted = cache_manager.clear_cache(topic)
+    deleted = await cache_manager.clear_cache(topic)
     
     if deleted > 0:
         return {

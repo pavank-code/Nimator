@@ -6,7 +6,7 @@ Pre-caches existing videos and manages cache operations.
 """
 from typing import Dict, Any, Optional, List
 import json
-import redis
+import redis.asyncio as redis
 from datetime import datetime, timedelta
 from app.config import settings
 
@@ -29,7 +29,7 @@ class VideoCacheManager:
             decode_responses=True
         )
     
-    def cache_video(
+    async def cache_video(
         self,
         topic: str,
         prompt: str,
@@ -63,7 +63,7 @@ class VideoCacheManager:
         }
         
         # Store the cache entry
-        self.redis_client.setex(
+        await self.redis_client.setex(
             cache_key,
             self.CACHE_TTL_SECONDS,
             json.dumps(cache_data)
@@ -71,38 +71,38 @@ class VideoCacheManager:
         
         # Add to video list
         video_list_key = "video:list"
-        self.redis_client.sadd(video_list_key, cache_key)
+        await self.redis_client.sadd(video_list_key, cache_key)
         
         print(f"✅ Cached video: {topic} (ID: {video_id})")
         return True
     
-    def get_cached_video(self, topic: str) -> Optional[Dict[str, Any]]:
+    async def get_cached_video(self, topic: str) -> Optional[Dict[str, Any]]:
         """
         Retrieve cached video for a topic.
         
         Returns None if not cached.
         """
         cache_key = f"video:topic:{topic.lower().replace(' ', '_')}"
-        cached_data = self.redis_client.get(cache_key)
+        cached_data = await self.redis_client.get(cache_key)
         
         if cached_data:
             return json.loads(cached_data)
         return None
     
-    def list_cached_videos(self) -> List[Dict[str, Any]]:
+    async def list_cached_videos(self) -> List[Dict[str, Any]]:
         """List all cached videos."""
         video_list_key = "video:list"
-        cache_keys = self.redis_client.smembers(video_list_key)
+        cache_keys = await self.redis_client.smembers(video_list_key)
         
         videos = []
         for key in cache_keys:
-            data = self.redis_client.get(key)
+            data = await self.redis_client.get(key)
             if data:
                 videos.append(json.loads(data))
         
         return videos
     
-    def clear_cache(self, topic: Optional[str] = None) -> int:
+    async def clear_cache(self, topic: Optional[str] = None) -> int:
         """
         Clear cache for a specific topic or all cache.
         
@@ -110,27 +110,27 @@ class VideoCacheManager:
         """
         if topic:
             cache_key = f"video:topic:{topic.lower().replace(' ', '_')}"
-            deleted = self.redis_client.delete(cache_key)
-            self.redis_client.srem("video:list", cache_key)
+            deleted = await self.redis_client.delete(cache_key)
+            await self.redis_client.srem("video:list", cache_key)
             return deleted
         else:
             # Clear all
             video_list_key = "video:list"
-            cache_keys = self.redis_client.smembers(video_list_key)
+            cache_keys = await self.redis_client.smembers(video_list_key)
             deleted = 0
             for key in cache_keys:
-                deleted += self.redis_client.delete(key)
-            self.redis_client.delete(video_list_key)
+                deleted += await self.redis_client.delete(key)
+            await self.redis_client.delete(video_list_key)
             return deleted
     
-    def is_cached(self, topic: str) -> bool:
+    async def is_cached(self, topic: str) -> bool:
         """Check if a video is cached."""
-        return self.get_cached_video(topic) is not None
+        return await self.get_cached_video(topic) is not None
     
-    def get_cache_stats(self) -> Dict[str, Any]:
+    async def get_cache_stats(self) -> Dict[str, Any]:
         """Get cache statistics."""
         video_list_key = "video:list"
-        cache_keys = self.redis_client.smembers(video_list_key)
+        cache_keys = await self.redis_client.smembers(video_list_key)
         
         stats = {
             "total_cached_videos": len(cache_keys),
@@ -139,7 +139,7 @@ class VideoCacheManager:
         }
         
         for key in cache_keys:
-            data = self.redis_client.get(key)
+            data = await self.redis_client.get(key)
             if data:
                 cache_entry = json.loads(data)
                 stats["cached_topics"].append(cache_entry["topic"])
