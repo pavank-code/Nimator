@@ -8,7 +8,7 @@ import os
 import json
 from typing import List, Dict, Any
 from pathlib import Path
-import redis
+import redis.asyncio as redis
 from app.config import settings
 from app.services.cache_manager import get_cache_manager
 
@@ -32,56 +32,49 @@ async def load_existing_videos_to_cache() -> Dict[str, Any]:
     
     # Method 1: Load from Redis job entries
     try:
-        cursor = 0
-        while True:
-            cursor, keys = redis_client.scan(cursor, match="job:*", count=100)
+        async for key in redis_client.scan_iter(match="job:*", count=100):
+            job_data_str = await redis_client.get(key)
+            if not job_data_str:
+                continue
             
-            for key in keys:
-                job_data_str = redis_client.get(key)
-                if not job_data_str:
+            try:
+                job_data = json.loads(job_data_str)
+
+                # Only cache completed videos
+                if job_data.get("status") != "completed":
                     continue
                 
-                try:
-                    job_data = json.loads(job_data_str)
-                    
-                    # Only cache completed videos
-                    if job_data.get("status") != "completed":
-                        continue
-                    
-                    # Extract topic from job
-                    topic = job_data.get("topic", "Unknown")
-                    prompt = job_data.get("prompt", "")
-                    video_id = job_data.get("job_id", "")
-                    video_url = job_data.get("video_url", "")
-                    scenes = job_data.get("scenes", [])
-                    
-                    # Check if already in cache
-                    if cache_manager.is_cached(topic):
-                        print(f"⏭️  Already cached: {topic}")
-                        continue
-                    
-                    # Cache the video
-                    cache_manager.cache_video(
-                        topic=topic,
-                        prompt=prompt,
-                        video_id=video_id,
-                        video_path=video_url,
-                        scenes=scenes,
-                        status="completed"
-                    )
-                    
-                    videos_loaded.append({
-                        "topic": topic,
-                        "video_id": video_id,
-                        "scenes": len(scenes)
-                    })
-                    loaded_count += 1
-                    
-                except json.JSONDecodeError:
+                # Extract topic from job
+                topic = job_data.get("topic", "Unknown")
+                prompt = job_data.get("prompt", "")
+                video_id = job_data.get("job_id", "")
+                video_url = job_data.get("video_url", "")
+                scenes = job_data.get("scenes", [])
+
+                # Check if already in cache
+                if await cache_manager.is_cached(topic):
+                    print(f"⏭️  Already cached: {topic}")
                     continue
-            
-            if cursor == 0:
-                break
+
+                # Cache the video
+                await cache_manager.cache_video(
+                    topic=topic,
+                    prompt=prompt,
+                    video_id=video_id,
+                    video_path=video_url,
+                    scenes=scenes,
+                    status="completed"
+                )
+
+                videos_loaded.append({
+                    "topic": topic,
+                    "video_id": video_id,
+                    "scenes": len(scenes)
+                })
+                loaded_count += 1
+
+            except json.JSONDecodeError:
+                continue
     
     except Exception as e:
         print(f"⚠️  Error loading from Redis jobs: {e}")
@@ -95,7 +88,7 @@ async def load_existing_videos_to_cache() -> Dict[str, Any]:
                 
                 # Try to find matching job in Redis
                 job_key = f"job:{video_id}"
-                job_data_str = redis_client.get(job_key)
+                job_data_str = await redis_client.get(job_key)
                 
                 if job_data_str:
                     try:
@@ -103,11 +96,11 @@ async def load_existing_videos_to_cache() -> Dict[str, Any]:
                         topic = job_data.get("topic", "Unknown")
                         
                         # Check if already cached
-                        if cache_manager.is_cached(topic):
+                        if await cache_manager.is_cached(topic):
                             continue
                         
                         # Cache it
-                        cache_manager.cache_video(
+                        await cache_manager.cache_video(
                             topic=topic,
                             prompt=job_data.get("prompt", ""),
                             video_id=video_id,
@@ -135,7 +128,7 @@ async def load_existing_videos_to_cache() -> Dict[str, Any]:
         for video in videos_loaded:
             print(f"   - {video['topic']} (ID: {video['video_id']})")
     
-    stats = cache_manager.get_cache_stats()
+    stats = await cache_manager.get_cache_stats()
     print(f"\n📊 Cache Stats:")
     print(f"   Total cached videos: {stats['total_cached_videos']}")
     print(f"   Cache size: {stats['cache_size_mb']} MB")
@@ -168,8 +161,8 @@ async def preload_demo_videos() -> Dict[str, Any]:
     print("\n🎯 Checking for demo video cache...")
     
     for topic in demo_topics:
-        if cache_manager.is_cached(topic):
-            cached = cache_manager.get_cached_video(topic)
+        if await cache_manager.is_cached(topic):
+            cached = await cache_manager.get_cached_video(topic)
             preloaded.append({
                 "topic": topic,
                 "cached": True,

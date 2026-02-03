@@ -53,7 +53,7 @@ class ManimCodeGenerator:
         {"primary": "#14B8A6", "secondary": "#F97316", "accent": "#6366F1"},  # Teal/Orange/Indigo
     ]
 
-SCENE_GENERATION_PROMPT = """You are an expert Manim animator. Convert this script scene into precise Manim parameters.
+    SCENE_GENERATION_PROMPT = """You are an expert Manim animator. Convert this script scene into precise Manim parameters.
 
 SCRIPT SCENE:
 Scene Number: {scene_number}
