@@ -355,7 +355,7 @@ Generate the Manim scene:"""
     
     async def _queue_render_job(self, state: SessionState, scene: Scene, qwen_response: Dict[str, Any]) -> str:
         """Queue the scene for rendering via Redis."""
-        import redis
+        import redis.asyncio as redis
         
         job_id = str(uuid.uuid4())
         
@@ -385,11 +385,11 @@ Generate the Manim scene:"""
             }
             
             # Store job
-            redis_client.set(f"job:{job_id}", json.dumps(job_data))
-            redis_client.expire(f"job:{job_id}", 3600)
+            await redis_client.set(f"job:{job_id}", json.dumps(job_data))
+            await redis_client.expire(f"job:{job_id}", 3600)
             
             # Add to render queue
-            redis_client.lpush("render_queue", json.dumps(job_data))
+            await redis_client.lpush("render_queue", json.dumps(job_data))
             
             # Update state
             state.current_video_job_id = job_id

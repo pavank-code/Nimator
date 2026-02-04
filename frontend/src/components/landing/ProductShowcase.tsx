@@ -51,7 +51,7 @@ export default function ProductShowcase() {
                 {/* Section Header */}
                 <div className="text-center mb-24">
                     <h2 className="reveal text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-                        See what's possible
+                        See what&apos;s possible
                     </h2>
                 </div>
 
