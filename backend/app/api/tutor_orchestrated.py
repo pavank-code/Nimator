@@ -9,7 +9,7 @@ This endpoint uses the SessionOrchestrator to:
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
-import redis
+from redis import asyncio as redis
 import json
 
 from app.config import settings
@@ -95,7 +95,7 @@ async def orchestrated_chat(request: ChatRequest):
         # Check if video is ready (for previously generated videos)
         video_url = None
         if result.get("video_job_id"):
-            job_data = redis_client.get(f"job:{result['video_job_id']}")
+            job_data = await redis_client.get(f"job:{result['video_job_id']}")
             if job_data:
                 job = json.loads(job_data)
                 if job.get("status") == "completed":
@@ -126,7 +126,7 @@ async def get_video_status(job_id: str):
     
     Poll this endpoint to check when video is ready.
     """
-    job_data = redis_client.get(f"job:{job_id}")
+    job_data = await redis_client.get(f"job:{job_id}")
     
     if not job_data:
         raise HTTPException(status_code=404, detail="Job not found")
