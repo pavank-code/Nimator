@@ -60,7 +60,7 @@
 2026-01-25 03:31:12.702 | For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
 2026-01-25 03:31:12.702 | Falling back to provider: gemini
 2026-01-25 03:31:12.702 | [DEBUG] Using provider: gemini, model: gemini-2.0-flash, format: gemini
-2026-01-25 03:31:13.397 | LLM request failed (gemini): Client error '403 Forbidden' for url 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyACDtJWJuQRiD0ur3XjvO0_StyFByYKjPQ'
+2026-01-25 03:31:13.397 | LLM request failed (gemini): Client error '403 Forbidden' for url 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=[REDACTED_API_KEY]'
 2026-01-25 03:31:13.397 | For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403
 2026-01-25 03:31:13.399 | [DEBUG] Using provider: nvidia, model: deepseek-ai/deepseek-r1, format: nvidia
 2026-01-25 03:31:13.404 | [NVIDIA] Calling model: deepseek-ai/deepseek-r1
@@ -78,7 +78,7 @@
 2026-01-25 03:31:20.459 | For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
 2026-01-25 03:31:20.459 | Falling back to provider: gemini
 2026-01-25 03:31:20.459 | [DEBUG] Using provider: gemini, model: gemini-2.0-flash, format: gemini
-2026-01-25 03:31:20.957 | LLM request failed (gemini): Client error '403 Forbidden' for url 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyACDtJWJuQRiD0ur3XjvO0_StyFByYKjPQ'
+2026-01-25 03:31:20.957 | LLM request failed (gemini): Client error '403 Forbidden' for url 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=[REDACTED_API_KEY]'
 2026-01-25 03:31:20.957 | For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403
 2026-01-25 03:31:20.957 | 🎬 Starting visual-synchronized pipeline (90s)...
 2026-01-25 03:31:20.957 |    Topic: Physics

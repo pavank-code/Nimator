@@ -11,7 +11,7 @@ The system uses a **Two-Stage Pipeline** orchestrated by a **Multi-Provider LLM 
 **Role:** Script generation, visual-first pedagogy, topic analysis
 **API Endpoint:** `https://integrate.api.nvidia.com/v1/chat/completions`
 **Model:** `deepseek-ai/deepseek-v3.2`
-**API Key:** `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`
+**API Key:** `<REDACTED>`
 **Config Keys:**
 - `NVIDIA_DEEPSEEK_API_KEY`
 - `NVIDIA_DEEPSEEK_MODEL`
@@ -29,7 +29,7 @@ The system uses a **Two-Stage Pipeline** orchestrated by a **Multi-Provider LLM 
 **Role:** Manim scene specification generation, code validation, debugging (future)
 **API Endpoint:** `https://integrate.api.nvidia.com/v1/chat/completions`
 **Model:** `qwen/qwen2.5-coder-32b-instruct`
-**API Key:** `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`
+**API Key:** `<REDACTED>`
 **Config Keys:**
 - `NVIDIA_QWEN_API_KEY`
 - `NVIDIA_QWEN_MODEL`
@@ -47,7 +47,7 @@ The system uses a **Two-Stage Pipeline** orchestrated by a **Multi-Provider LLM 
 **Role:** Backup for script and scene generation
 **API Endpoint:** `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent`
 **Model:** `gemini-2.0-flash`
-**API Key:** `AIzaSyACDtJWJuQRiD0ur3XjvO0_StyFByYKjPQ`
+**API Key:** `<REDACTED>`
 **Config Keys:**
 - `GEMINI_API_KEY`
 - `GEMINI_MODEL`
@@ -68,7 +68,7 @@ The system uses a **Two-Stage Pipeline** orchestrated by a **Multi-Provider LLM 
 **Role:** Free tier alternative with large context window
 **API Endpoint:** `https://openrouter.ai/api/v1/chat/completions`
 **Model:** `xiaomi/mimo-v2-flash:free`
-**API Key:** `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`
+**API Key:** `<REDACTED>`
 **Config Keys:**
 - `OPENROUTER_API_KEY`
 - `OPENROUTER_MODEL`
@@ -298,16 +298,16 @@ PROVIDERS = {
 ### Environment Variables (.env)
 ```
 # Primary AI
-NVIDIA_API_KEY=nvapi-VnGHFoWmR7_...
-NVIDIA_DEEPSEEK_API_KEY=nvapi-VnGHFoWmR7_...
-NVIDIA_QWEN_API_KEY=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
+NVIDIA_API_KEY=<REDACTED>
+NVIDIA_DEEPSEEK_API_KEY=<REDACTED>
+NVIDIA_QWEN_API_KEY=<REDACTED>
 
 # TTS
-DEEPGRAM_API_KEY=784aa1f5dbcb34355d391473f2e85fa14c06c8a6
+DEEPGRAM_API_KEY=<REDACTED>
 
 # Fallbacks
-OPENROUTER_API_KEY=sk-or-v1-...
-GEMINI_API_KEY=AIzaSyACDtJWJuQRiD0ur3XjvO0_StyFByYKjPQ
+OPENROUTER_API_KEY=<REDACTED>
+GEMINI_API_KEY=<REDACTED>
 ```
 
 ### Config Settings (config.py)
