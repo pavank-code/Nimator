@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     # NVIDIA NIM (Primary - DeepSeek R1 for reasoning + Qwen Coder for code)
     # https://build.nvidia.com/
     NVIDIA_API_KEY: Optional[str] = None
+    NVIDIA_CODER_API_KEY: Optional[str] = None
     NVIDIA_MODEL: str = "deepseek-ai/deepseek-r1"
     NVIDIA_CODER_MODEL: str = "qwen/qwen2.5-coder-32b-instruct"
     
@@ -39,6 +40,9 @@ class Settings(BaseSettings):
     # OpenAI (optional) - https://platform.openai.com/
     OPENAI_API_KEY: Optional[str] = None
     OPENAI_MODEL: str = "gpt-4o-mini"
+
+    # TTS provider
+    DEEPGRAM_API_KEY: Optional[str] = None
     
     # Ollama (local) - http://localhost:11434
     OLLAMA_BASE_URL: str = "http://localhost:11434"

@@ -307,7 +307,8 @@ class LLMClient:
         sanitized = message
         if api_key:
             sanitized = sanitized.replace(api_key, "[REDACTED_API_KEY]")
-        sanitized = re.sub(r"(key=)[^&\\s]+", r"\1[REDACTED_API_KEY]", sanitized)
+        sanitized = re.sub(r"([?&](?:key|api_key|apiKey)=)[^&\s#;)\]}]+", r"\1[REDACTED_API_KEY]", sanitized)
+        sanitized = re.sub(r"(Bearer\s+)[\w\-._~+/=]+", r"\1[REDACTED_API_KEY]", sanitized)
         return sanitized
 
 
