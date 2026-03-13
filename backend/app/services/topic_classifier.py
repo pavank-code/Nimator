@@ -3,6 +3,7 @@ import json
 import httpx
 import asyncio
 import random
+import re
 from app.config import settings
 
 
@@ -202,10 +203,10 @@ class LLMClient:
                     if attempt < max_retries - 1:
                         await asyncio.sleep(delay)
                         continue
-                print(f"LLM request failed ({provider}): {e}")
+                print(f"LLM request failed ({provider}): {self._sanitize_error_message(str(e), api_key)}")
                 return None
             except Exception as e:
-                print(f"LLM request failed ({provider}): {e}")
+                print(f"LLM request failed ({provider}): {self._sanitize_error_message(str(e), api_key)}")
                 return None
         
         return None
@@ -297,8 +298,18 @@ class LLMClient:
             print(f"[NVIDIA] Success - got response")
             return result["choices"][0]["message"]["content"]
         except Exception as e:
-            print(f"[NVIDIA] Exception: {type(e).__name__}: {e}")
+            print(f"[NVIDIA] Exception: {type(e).__name__}: {self._sanitize_error_message(str(e), api_key)}")
             raise
+
+    @staticmethod
+    def _sanitize_error_message(message: str, api_key: Optional[str] = None) -> str:
+        """Redact API keys from provider error messages before logging."""
+        sanitized = message
+        if api_key:
+            sanitized = sanitized.replace(api_key, "[REDACTED_API_KEY]")
+        sanitized = re.sub(r"([?&](?:key|api_key|apiKey)=)[^&\s#;)\]}]+", r"\1[REDACTED_API_KEY]", sanitized)
+        sanitized = re.sub(r"(Bearer\s+)[\w\-._~+/=]+", r"\1[REDACTED_API_KEY]", sanitized)
+        return sanitized
 
 
 class TopicClassifier:
